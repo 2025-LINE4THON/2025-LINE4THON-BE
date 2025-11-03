@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    //기본 환경 설정
+    "target": "ES2020",     // Node.js v22 -> ES2020
+    "module": "CommonJS",    // Node.js 모듈 시스템
+    "lib": ["ES2020"],    // ES2020 표준 라이브러리
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+
+    //경로 설정
+    "rootDir": "./src",      // TypeScript 소스 코드 폴더
+    "outDir": "./dist",      // 컴파일된 JavaScript가 저장될 폴더
+
+    //타입 검사
+    "strict": true,
+
+    //기타 (성능 및 편의)
+    "skipLibCheck": true     // 설치한 라이브러리의 타입 검사 X
+  },
+  // 컴파일할 폴더/파일 지정 (src 폴더 안의 모든 ts 파일만 대상으로 함)
+  "include": ["src/**/*"]
+}
