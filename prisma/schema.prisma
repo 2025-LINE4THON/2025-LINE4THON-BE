@@ -1,0 +1,203 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+// schema.prisma
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  userId       Int       @id @default(autoincrement())
+  name         String
+  username     String
+  password     String
+  phoneNumber  Int?
+  email        String?
+  introduction String?
+  job          String?
+
+  // Relations
+  projects     Project[]
+  portfolios   Portfolio[]
+  licenses     License[]
+  careers      Career[]
+  stacks       Stack[] 
+  portfolioStacks    PortfolioStack[]
+  portfolioCareers   PortfolioCareer[]
+  projectTags        ProjectTag[]
+  projectStacks      ProjectStack[]
+  projectContents    ProjectContent[]
+  projectImages      ProjectImage[]
+  links              Link[]  
+}
+
+model License {
+  licenseId     Int      @id @default(autoincrement())
+  userId        Int
+  name          String
+  gotDate       DateTime
+  endDate       DateTime?
+
+  user User @relation(fields: [userId], references: [userId])
+}
+
+model Career {
+  careerId  Int      @id @default(autoincrement())
+  userId    Int
+  content   String
+  startDate DateTime
+  endDate   DateTime?
+
+  user User @relation(fields: [userId], references: [userId])
+  portfolioCareers PortfolioCareer[]
+}
+
+model Stack {
+  stackId  Int      @id @default(autoincrement())
+  userId   Int
+  name     String
+  level    String?
+
+  user User @relation(fields: [userId], references: [userId])
+  portfolioStacks PortfolioStack[]
+  projectStacks ProjectStack[]
+}
+
+enum Template {
+  IMAGE
+  STANDARD
+}
+
+enum Visibiliity {
+  PUBLIC
+  PRIVATE
+  LINK
+  
+}
+
+model Portfolio {
+  portfolioId  Int      @id @default(autoincrement())
+  userId       Int  
+  projectId    Int 
+  name         String
+  thumbnail    String
+  template     Template
+  createdAt    DateTime @default(now())
+  watched      Int
+  updatedAt    DateTime @updatedAt
+  isPublic  Visibiliity     
+  description  String?
+
+  user     User     @relation(fields: [userId], references: [userId])
+  projects  Project[] @relation("PortfolioProjects")
+  portfolioStacks  PortfolioStack[]
+  portfolioCareers PortfolioCareer[]
+}
+
+model PortfolioStack {
+  stackId      Int
+  portfolioId  Int
+  userId       Int
+  rank         Int
+
+  portfolio Portfolio @relation(fields: [portfolioId], references: [portfolioId])
+  stack     Stack     @relation(fields: [stackId], references: [stackId])
+  user      User      @relation(fields: [userId], references: [userId])
+
+  @@id([stackId, portfolioId, userId])
+}
+
+model PortfolioCareer {
+  careerId    Int
+  portfolioId Int
+  userId      Int
+
+  career    Career    @relation(fields: [careerId], references: [careerId])
+  portfolio Portfolio @relation(fields: [portfolioId], references: [portfolioId])
+  user      User      @relation(fields: [userId], references: [userId])
+
+  @@id([careerId, portfolioId, userId])
+}
+
+model Project {
+  projectId  Int      @id @default(autoincrement())
+  userId     Int
+  title      String
+  startDate  DateTime
+  endDate    DateTime?
+  role       String?
+  thumbnail  String?
+
+  user             User             @relation(fields: [userId], references: [userId])
+  projectTags      ProjectTag[]
+  projectStacks    ProjectStack[]
+  projectContents  ProjectContent[]
+  projectImages    ProjectImage[]
+  links            Link[]
+  portfolios       Portfolio[] @relation("PortfolioProjects")
+}
+
+model ProjectTag {
+  tagId     Int      @id @default(autoincrement())
+  projectId Int
+  userId    Int
+  content   String
+
+  project Project @relation(fields: [projectId], references: [projectId])
+  user    User    @relation(fields: [userId], references: [userId])
+}
+
+model ProjectStack {
+  stackId    Int
+  projectId  Int
+  userId     Int
+  stackName  String
+
+  project Project @relation(fields: [projectId], references: [projectId])
+  user    User    @relation(fields: [userId], references: [userId])
+  stack   Stack   @relation(fields: [stackId], references: [stackId])
+
+  @@id([stackId, projectId, userId])
+}
+
+model ProjectContent {
+  projectContentId Int      @id @default(autoincrement())
+  projectId        Int
+  userId           Int
+  title            String
+  content          String
+
+  project Project @relation(fields: [projectId], references: [projectId])
+  user    User    @relation(fields: [userId], references: [userId])
+}
+
+model ProjectImage {
+  projectId Int
+  userId    Int
+  imageURL  String
+
+  project Project @relation(fields: [projectId], references: [projectId])
+  user    User    @relation(fields: [userId], references: [userId])
+
+  @@id([projectId, userId])
+}
+
+model Link {
+  linkId     Int      @id @default(autoincrement())
+  projectId  Int
+  userId     Int
+  linkSite   String?
+  name       String
+  url        String
+
+  project Project @relation(fields: [projectId], references: [projectId])
+  user    User    @relation(fields: [userId], references: [userId])
+}
