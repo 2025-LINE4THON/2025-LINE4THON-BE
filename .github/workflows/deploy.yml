@@ -3,7 +3,7 @@ name: CI/CD Deploy to EC2 with Docker & ECR
 on:
   push:
     branches:
-      - main  # main 브랜치 푸시 시 자동 배포
+      - main
 
 jobs:
   build-and-deploy:
@@ -43,7 +43,7 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
-      # 7 Docker 이미지 빌드 및 ECR 푸시
+      # 7️ Docker 이미지 빌드 및 ECR 푸시
       - name: Build, tag, and push image to ECR
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
@@ -53,7 +53,7 @@ jobs:
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
-      # 8EC2로 SSH 접속하여 배포
+      # 8️ EC2로 SSH 접속하여 배포
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v1.0.0
         with:
@@ -61,7 +61,19 @@ jobs:
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            docker pull ${{ steps.login-ecr.outputs.registry }}/portfolis:latest
+            if ! command -v aws &> /dev/null
+            then
+              echo "AWS CLI not found. Installing..."
+              curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+              unzip awscliv2.zip
+              sudo ./aws/install
+            fi
+
+            aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin 457271242652.dkr.ecr.ap-northeast-2.amazonaws.com
+            
+            docker pull 457271242652.dkr.ecr.ap-northeast-2.amazonaws.com/portfolis:latest
+
             docker stop portfolis || true
             docker rm portfolis || true
-            docker run -d -p 3000:3000 --name portfolis ${{ steps.login-ecr.outputs.registry }}/portfolis:latest
+
+            docker run -d -p 3000:3000 --name portfolis 457271242652.dkr.ecr.ap-northeast-2.amazonaws.com/portfolis:latest
