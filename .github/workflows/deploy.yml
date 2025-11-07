@@ -10,27 +10,27 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1️⃣ 리포지토리 체크아웃
+      # 1️ 리포지토리 체크아웃
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2️⃣ Node 환경 설정
+      # 2️ Node 환경 설정
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      # 3️⃣ pnpm 설치
+      # 3️ pnpm 설치
       - name: Install pnpm
         run: npm install -g pnpm
 
-      # 4️⃣ 의존성 설치 및 빌드
+      # 4️ 의존성 설치 및 빌드
       - name: Install dependencies & build
         run: |
           pnpm install --frozen-lockfile
           pnpm run build
 
-      # 5️⃣ AWS 로그인 (ECR 푸시용)
+      # 5️ AWS 로그인 (ECR 푸시용)
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -38,22 +38,22 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      # 6️⃣ ECR 로그인
+      # 6️ ECR 로그인
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
-      # 7️⃣ Docker 이미지 빌드 및 ECR 푸시
+      # 7 Docker 이미지 빌드 및 ECR 푸시
       - name: Build, tag, and push image to ECR
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: line4-be  # 👉 ECR 저장소 이름으로 수정
+          ECR_REPOSITORY: portfolis
           IMAGE_TAG: latest
         run: |
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
-      # 8️⃣ EC2로 SSH 접속하여 배포
+      # 8EC2로 SSH 접속하여 배포
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v1.0.0
         with:
@@ -61,7 +61,7 @@ jobs:
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            docker pull ${{ steps.login-ecr.outputs.registry }}/line4-be:latest
-            docker stop line4be || true
-            docker rm line4be || true
-            docker run -d -p 3000:3000 --name line4be ${{ steps.login-ecr.outputs.registry }}/line4-be:latest
+            docker pull ${{ steps.login-ecr.outputs.registry }}/portfolis:latest
+            docker stop portfolis || true
+            docker rm portfolis || true
+            docker run -d -p 3000:3000 --name portfolis ${{ steps.login-ecr.outputs.registry }}/portfolis:latest
