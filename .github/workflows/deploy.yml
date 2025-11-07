@@ -3,77 +3,94 @@ name: CI/CD Deploy to EC2 with Docker & ECR
 on:
   push:
     branches:
-      - main
+      - main  # main 브랜치 push 시 자동 실행
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
-      # 1️ 리포지토리 체크아웃
+      # 1️⃣ 리포지토리 체크아웃
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2️ Node 환경 설정
+      # 2️⃣ Node 환경 설정
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      # 3️ pnpm 설치
+      # 3️⃣ pnpm 설치
       - name: Install pnpm
         run: npm install -g pnpm
 
-      # 4️ 의존성 설치 및 빌드
+      # 4️⃣ 의존성 설치 및 빌드
       - name: Install dependencies & build
         run: |
           pnpm install --frozen-lockfile
           pnpm run build
 
-      # 5️ AWS 로그인 (ECR 푸시용)
+      # 5️⃣ AWS 자격 증명 설정
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
+          aws-region: ap-northeast-2
 
-      # 6️ ECR 로그인
+      # 6️⃣ ECR 로그인
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
-      # 7️ Docker 이미지 빌드 및 ECR 푸시
+      # 7️⃣ Docker 이미지 빌드 및 푸시
       - name: Build, tag, and push image to ECR
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: portfolis
           IMAGE_TAG: latest
         run: |
+          echo "Building Docker image..."
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          echo "Pushing Docker image to ECR..."
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          echo "✅ Docker image pushed successfully."
 
-      # 8️ EC2로 SSH 접속하여 배포
+      # 8️⃣ EC2 접속 및 자동 배포
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v1.0.0
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
+          script_stop: true
           script: |
+            echo "🚀 Starting deployment on EC2..."
+
             if ! command -v aws &> /dev/null
             then
-              echo "AWS CLI not found. Installing..."
+              echo "Installing AWS CLI..."
+              sudo apt-get update -y
+              sudo apt-get install -y unzip
               curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
               unzip awscliv2.zip
               sudo ./aws/install
             fi
 
             aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin 457271242652.dkr.ecr.ap-northeast-2.amazonaws.com
-            
+
+            echo "Pulling latest Docker image..."
             docker pull 457271242652.dkr.ecr.ap-northeast-2.amazonaws.com/portfolis:latest
 
+            echo "Stopping old container (if exists)..."
             docker stop portfolis || true
             docker rm portfolis || true
 
-            docker run -d -p 3000:3000 --name portfolis 457271242652.dkr.ecr.ap-northeast-2.amazonaws.com/portfolis:latest
+            echo "Running new container..."
+            docker run -d \
+              --name portfolis \
+              -p 3000:3000 \
+              457271242652.dkr.ecr.ap-northeast-2.amazonaws.com/portfolis:latest
+
+            docker ps -a | grep portfolis
+            echo "✅ Deployment complete."
