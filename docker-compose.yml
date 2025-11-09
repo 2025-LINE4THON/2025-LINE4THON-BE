@@ -1,0 +1,13 @@
+version: "3.8"
+
+services:
+  app:
+    image: ${IMAGE_URI}:latest
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      # 필요 환경변수는 .env로 관리하거나 여기에 추가
+    ports:
+      - "127.0.0.1:3000:3000"  # nginx 프록시를 쓸 경우 내부 바인드 권장
+    volumes:
+      - ./uploads:/app/uploads   # 예시 (필요하면 사용)
