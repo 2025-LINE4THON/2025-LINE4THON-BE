@@ -1,7 +1,12 @@
 import express, { Request, Response } from 'express';
+import { projectRouter } from './modules/projects/project.routes';
+
 
 const app = express();
 const port = 3000; // 서버가 3000번 포트에서 실행
+
+app.use(express.json());
+app.use('/api', projectRouter);
 
 // GET 요청이 '/' 경로로 들어오면 실행
 app.get('/', (req: Request, res: Response) => {
