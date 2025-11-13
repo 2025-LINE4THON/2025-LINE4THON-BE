@@ -175,6 +175,7 @@ export class PortfolioRepository extends CommonRepository<PortfolioResponseDto> 
         coverImage: true,
         template: true,
         views: true,
+        likesCount: true,
         isPublic: true,
         greeting: true,
         introduction: true,
@@ -195,6 +196,11 @@ export class PortfolioRepository extends CommonRepository<PortfolioResponseDto> 
     const portfolio = await this.model.findUnique({
       where: { portfolioId },
       include: {
+        user: {
+          include: {
+            licenses: true,
+          },
+        },
         portfolioStacks: {
           include: {
             stack: true,
@@ -229,6 +235,7 @@ export class PortfolioRepository extends CommonRepository<PortfolioResponseDto> 
       coverImage: (portfolio as any).coverImage ?? undefined,
       template: portfolio.template,
       views: portfolio.views,
+      likesCount: (portfolio as any).likesCount,
       isPublic: portfolio.isPublic,
       greeting: portfolio.greeting ?? undefined,
       introduction: portfolio.introduction ?? undefined,
@@ -248,6 +255,12 @@ export class PortfolioRepository extends CommonRepository<PortfolioResponseDto> 
         endDate: pc.career.endDate ?? undefined,
         description: pc.description ?? undefined,
       })),
+      licenses: (portfolio as any).user.licenses.map((license: any) => ({
+        licenseId: license.licenseId,
+        name: license.name,
+        gotDate: license.gotDate,
+        endDate: license.endDate ?? undefined,
+      })),
       projects: portfolio.projects,
     };
   }
@@ -258,6 +271,22 @@ export class PortfolioRepository extends CommonRepository<PortfolioResponseDto> 
       where: { 
         portfolioId,
         userId 
+      },
+      select: {
+        portfolioId: true,
+        userId: true,
+        title: true,
+        thumbnail: true,
+        coverImage: true,
+        template: true,
+        views: true,
+        likesCount: true,
+        isPublic: true,
+        greeting: true,
+        introduction: true,
+        aboutMe: true,
+        createdAt: true,
+        updatedAt: true,
       },
     });
   }
@@ -280,6 +309,7 @@ export class PortfolioRepository extends CommonRepository<PortfolioResponseDto> 
         coverImage: true,
         template: true,
         views: true,
+        likesCount: true,
         isPublic: true,
         greeting: true,
         introduction: true,
@@ -327,6 +357,7 @@ export class PortfolioRepository extends CommonRepository<PortfolioResponseDto> 
         coverImage: true,
         template: true,
         views: true,
+        likesCount: true,
         isPublic: true,
         greeting: true,
         introduction: true,
@@ -352,6 +383,42 @@ export class PortfolioRepository extends CommonRepository<PortfolioResponseDto> 
         },
       },
     });
+  }
+
+  // 포트폴리오 필수 요소 확인
+  async checkRequirements(userId: number): Promise<{
+    career: boolean;
+    stack: boolean;
+    project: boolean;
+    job: boolean;
+  }> {
+    // 경력 확인
+    const careerCount = await this.prisma.career.count({
+      where: { userId },
+    });
+
+    // 기술스택 확인
+    const stackCount = await this.prisma.stack.count({
+      where: { userId },
+    });
+
+    // 프로젝트 확인
+    const projectCount = await this.prisma.project.count({
+      where: { userId },
+    });
+
+    // 직군 확인 (User의 job 필드)
+    const user = await this.prisma.user.findUnique({
+      where: { userId },
+      select: { job: true },
+    });
+
+    return {
+      career: careerCount > 0,
+      stack: stackCount > 0,
+      project: projectCount > 0,
+      job: !!user?.job,
+    };
   }
 
   // 포트폴리오 삭제 (portfolioId로) - Relations도 함께 삭제

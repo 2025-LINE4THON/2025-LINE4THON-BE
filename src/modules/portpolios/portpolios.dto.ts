@@ -73,6 +73,7 @@ export interface PortfolioResponseDto {
   thumbnail?: string;
   template: 'IMAGE' | 'STANDARD';
   views: number;
+  likesCount: number;
   isPublic: 'PUBLIC' | 'PRIVATE' | 'LINK';
   greeting?: string;
   introduction?: string;
@@ -80,6 +81,7 @@ export interface PortfolioResponseDto {
   coverImage?: string;
   createdAt: Date;
   updatedAt: Date;
+  isLiked?: boolean; // 현재 사용자가 좋아요 했는지 여부 (선택적)
 }
 
 // Stack 응답 DTO
@@ -97,6 +99,14 @@ export interface CareerDto {
   startDate: Date;
   endDate?: Date;
   description?: string; // PortfolioCareer에서의 description
+}
+
+// License 응답 DTO
+export interface LicenseDto {
+  licenseId: number;
+  name: string;
+  gotDate: Date;
+  endDate?: Date;
 }
 
 // Project 간단 응답 DTO
@@ -118,21 +128,32 @@ export interface PortfolioDetailResponseDto {
   coverImage?: string;
   template: 'IMAGE' | 'STANDARD';
   views: number;
+  likesCount: number;
   isPublic: 'PUBLIC' | 'PRIVATE' | 'LINK';
   greeting?: string;
   introduction?: string;
   aboutMe?: AboutMeInput[];
   createdAt: Date;
   updatedAt: Date;
+  isLiked?: boolean;
   stacks: StackDto[];
   careers: CareerDto[];
+  licenses: LicenseDto[];
   projects: ProjectDto[];
 }
 
 // Portfolio 검색 파라미터
 export interface PortfolioSearchParam {
   keyword?: string;
-  sort?: 'recent' | 'views';
+  sort?: 'recent' | 'views' | 'likes';
   template?: 'IMAGE' | 'STANDARD';
   isPublic?: 'PUBLIC' | 'PRIVATE' | 'LINK';
+}
+
+// Portfolio 필수 요소 확인 응답 DTO
+export interface PortfolioRequirementsDto {
+  career: boolean;
+  stack: boolean;
+  project: boolean;
+  job: boolean;
 }

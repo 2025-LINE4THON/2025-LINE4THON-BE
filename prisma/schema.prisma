@@ -32,11 +32,14 @@ model User {
   stacks       Stack[] 
   portfolioStacks    PortfolioStack[]
   portfolioCareers   PortfolioCareer[]
+  portfolioLicenses  PortfolioLicense[]
   projectTags        ProjectTag[]
   projectStacks      ProjectStack[]
   projectContents    ProjectContent[]
   projectImages      ProjectImage[]
-  links              Link[]  
+  links              Link[]
+  portfolioLikes     PortfolioLike[]
+}
 }
 
 model License {
@@ -47,6 +50,7 @@ model License {
   endDate       DateTime?
 
   user User @relation(fields: [userId], references: [userId])
+  portfolioLicenses PortfolioLicense[]
 }
 
 model Career {
@@ -91,6 +95,7 @@ model Portfolio {
   template     Template
   createdAt    DateTime @default(now())
   views      Int @default(0)
+  likesCount Int @default(0)
   updatedAt    DateTime @updatedAt
   isPublic  Visibiliity     
   greeting  String?
@@ -103,6 +108,8 @@ model Portfolio {
   projects  Project[] @relation("PortfolioProjects")
   portfolioStacks  PortfolioStack[]
   portfolioCareers PortfolioCareer[]
+  portfolioLicenses PortfolioLicense[]
+  likes    PortfolioLike[]
 }
 
 model PortfolioStack {
@@ -129,6 +136,29 @@ model PortfolioCareer {
   user      User      @relation(fields: [userId], references: [userId])
 
   @@id([careerId, portfolioId, userId])
+}
+
+model PortfolioLicense {
+  licenseId   Int
+  portfolioId Int
+  userId      Int
+
+  license   License   @relation(fields: [licenseId], references: [licenseId])
+  portfolio Portfolio @relation(fields: [portfolioId], references: [portfolioId])
+  user      User      @relation(fields: [userId], references: [userId])
+
+  @@id([licenseId, portfolioId, userId])
+}
+
+model PortfolioLike {
+  userId      Int
+  portfolioId Int
+  createdAt   DateTime @default(now())
+
+  user      User      @relation(fields: [userId], references: [userId])
+  portfolio Portfolio @relation(fields: [portfolioId], references: [portfolioId])
+
+  @@id([userId, portfolioId])
 }
 
 model Project {
