@@ -16,7 +16,7 @@ generator client {
 
 model User {
   userId       Int       @id @default(autoincrement())
-  name         String
+  name         String?
   username     String
   password     String
   phoneNumber  Int?
@@ -85,16 +85,17 @@ enum Visibiliity {
 
 model Portfolio {
   portfolioId  Int      @id @default(autoincrement())
-  userId       Int  
-  projectId    Int 
-  name         String
-  thumbnail    String
+  userId       Int   
+  title         String
+  thumbnail    String?
   template     Template
   createdAt    DateTime @default(now())
-  watched      Int
+  views      Int @default(0)
   updatedAt    DateTime @updatedAt
   isPublic  Visibiliity     
-  description  String?
+  greeting  String?
+  introduction String?
+
 
   user     User     @relation(fields: [userId], references: [userId])
   projects  Project[] @relation("PortfolioProjects")
@@ -119,6 +120,7 @@ model PortfolioCareer {
   careerId    Int
   portfolioId Int
   userId      Int
+  description String?
 
   career    Career    @relation(fields: [careerId], references: [careerId])
   portfolio Portfolio @relation(fields: [portfolioId], references: [portfolioId])
