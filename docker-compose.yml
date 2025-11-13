@@ -6,8 +6,16 @@ services:
     restart: unless-stopped
     environment:
       - NODE_ENV=production
-      # 필요 환경변수는 .env로 관리하거나 여기에 추가
+      - PORT=3000
+      - DATABASE_URL=file:/app/data/dev.db
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET}
+      - JWT_EXPIRES_IN=3d
+      - JWT_REFRESH_EXPIRES_IN=7d
+      - CORS_ORIGIN=https://portpolis.site
+      - COOKIE_SECRET=${COOKIE_SECRET}
     ports:
       - "127.0.0.1:3000:3000"  # nginx 프록시를 쓸 경우 내부 바인드 권장
     volumes:
-      - ./uploads:/app/uploads   # 예시 (필요하면 사용)
+      - ./data:/app/data  # SQLite DB 저장
+      - ./uploads:/app/uploads
