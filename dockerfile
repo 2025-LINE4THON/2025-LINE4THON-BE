@@ -35,9 +35,8 @@ RUN pnpm install --frozen-lockfile --prod
 # Prisma 스키마 복사 (런타임에 필요)
 COPY --from=builder /app/prisma ./prisma
 
-# Prisma Client 복사
-COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
-COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
+# Prisma Client 복사 (pnpm 구조)
+COPY --from=builder /app/node_modules/.pnpm ./node_modules/.pnpm
 
 # 빌드된 산출물 복사
 COPY --from=builder /app/dist ./dist
