@@ -44,5 +44,11 @@ COPY --from=builder /app/dist ./dist
 ENV NODE_ENV=production
 EXPOSE 3000
 
-# 엔트리(프로젝트에 따라 조정)
-CMD ["node", "dist/index.js"]
+# 시작 스크립트 생성
+RUN echo '#!/bin/sh' > /app/start.sh && \
+    echo 'npx prisma migrate deploy' >> /app/start.sh && \
+    echo 'node dist/index.js' >> /app/start.sh && \
+    chmod +x /app/start.sh
+
+# 엔트리포인트: 마이그레이션 후 서버 시작
+CMD ["/app/start.sh"]
