@@ -12,6 +12,8 @@ COPY package.json pnpm-lock.yaml* ./
 # --frozen-lockfile: lockfile과 정확히 일치
 RUN pnpm install --frozen-lockfile
 
+RUN pnpm approve-builds @prisma/client @prisma/engines prisma bcrypt
+
 # 소스 복사
 COPY . .
 
