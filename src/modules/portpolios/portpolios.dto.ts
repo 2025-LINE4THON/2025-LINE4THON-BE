@@ -132,7 +132,7 @@ export interface PortfolioDetailResponseDto {
 // Portfolio 검색 파라미터
 export interface PortfolioSearchParam {
   keyword?: string;
-  sort?: 'recent' | 'views' | 'likes';
+  sort?: 'recent' | 'views';
   template?: 'IMAGE' | 'STANDARD';
   isPublic?: 'PUBLIC' | 'PRIVATE' | 'LINK';
 }
