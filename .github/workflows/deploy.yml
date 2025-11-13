@@ -27,7 +27,9 @@ jobs:
       # 4️⃣ 의존성 설치 및 빌드
       - name: Install dependencies & build
         run: |
+          pnpm config set enable-pre-post-scripts true
           pnpm install --frozen-lockfile
+          pnpm exec prisma generate
           pnpm run build
 
       # 5️⃣ AWS 자격 증명 설정
