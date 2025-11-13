@@ -44,11 +44,19 @@ COPY --from=builder /app/dist ./dist
 ENV NODE_ENV=production
 EXPOSE 3000
 
-# 시작 스크립트 생성
+# 시작 스크립트 생성 (안전한 마이그레이션)
 RUN echo '#!/bin/sh' > /app/start.sh && \
-    echo 'npx prisma migrate deploy' >> /app/start.sh && \
+    echo 'set -e' >> /app/start.sh && \
+    echo '# DB 파일 존재 확인' >> /app/start.sh && \
+    echo 'if [ -f /app/data/dev.db ]; then' >> /app/start.sh && \
+    echo '  echo "Existing DB found. Syncing schema..."' >> /app/start.sh && \
+    echo '  npx prisma db push --skip-generate || true' >> /app/start.sh && \
+    echo 'else' >> /app/start.sh && \
+    echo '  echo "No existing DB. Creating new database..."' >> /app/start.sh && \
+    echo '  npx prisma db push --skip-generate' >> /app/start.sh && \
+    echo 'fi' >> /app/start.sh && \
     echo 'node dist/index.js' >> /app/start.sh && \
     chmod +x /app/start.sh
 
-# 엔트리포인트: 마이그레이션 후 서버 시작
+# 엔트리포인트
 CMD ["/app/start.sh"]
