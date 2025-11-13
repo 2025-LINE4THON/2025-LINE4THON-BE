@@ -14,7 +14,7 @@ export class PortfolioRepository extends CommonRepository<PortfolioResponseDto> 
 
   // 포트폴리오 생성 (Relations 포함) - API 명세에 맞춤
   async createWithRelations(userId: number, data: CreatePortfolioDtoType) {
-    const { skills, careers, projectIds, template, introduction, ...portfolioData } = data;
+    const { skills, careers, projectIds, template, aboutMe, introduction, ...portfolioData } = data;
 
     return this.prisma.$transaction(async (tx) => {
       // 1. Portfolio 생성
@@ -26,6 +26,7 @@ export class PortfolioRepository extends CommonRepository<PortfolioResponseDto> 
           isPublic: portfolioData.isPublic,
           greeting: portfolioData.greeting,
           introduction: introduction,
+          aboutMe: aboutMe ? JSON.stringify(aboutMe) : undefined,
           userId,
         },
       });
@@ -76,7 +77,7 @@ export class PortfolioRepository extends CommonRepository<PortfolioResponseDto> 
     userId: number, 
     data: UpdatePortfolioDtoType
   ) {
-    const { skills, careers, projectIds, template, introduction, ...portfolioData } = data;
+    const { skills, careers, projectIds, template, introduction, aboutMe, ...portfolioData } = data;
 
     return this.prisma.$transaction(async (tx) => {
       // 1. Portfolio 기본 정보 수정
@@ -87,6 +88,7 @@ export class PortfolioRepository extends CommonRepository<PortfolioResponseDto> 
       if (portfolioData.isPublic !== undefined) updateData.isPublic = portfolioData.isPublic;
       if (portfolioData.greeting !== undefined) updateData.greeting = portfolioData.greeting;
       if (introduction !== undefined) updateData.introduction = introduction;
+      if (aboutMe !== undefined) updateData.aboutMe = JSON.stringify(aboutMe);
 
       const portfolio = await tx.portfolio.update({
         where: { portfolioId },
@@ -160,7 +162,7 @@ export class PortfolioRepository extends CommonRepository<PortfolioResponseDto> 
 
   // 사용자별 포트폴리오 목록 조회
   async findByUserId(userId: number): Promise<PortfolioResponseDto[]> {
-    return this.model.findMany({
+    const portfolios = await this.model.findMany({
       where: { userId },
       orderBy: { createdAt: 'desc' },
       select: {
@@ -173,10 +175,16 @@ export class PortfolioRepository extends CommonRepository<PortfolioResponseDto> 
         isPublic: true,
         greeting: true,
         introduction: true,
+        aboutMe: true,
         createdAt: true,
         updatedAt: true,
       },
     });
+
+    return portfolios.map((p: any) => ({
+      ...p,
+      aboutMe: p.aboutMe ? JSON.parse(p.aboutMe) : undefined,
+    }));
   }
 
   // 포트폴리오 상세 조회 (Relations 포함)
@@ -220,6 +228,7 @@ export class PortfolioRepository extends CommonRepository<PortfolioResponseDto> 
       isPublic: portfolio.isPublic,
       greeting: portfolio.greeting ?? undefined,
       introduction: portfolio.introduction ?? undefined,
+      aboutMe: (portfolio as any).aboutMe ? JSON.parse((portfolio as any).aboutMe) : undefined,
       createdAt: portfolio.createdAt,
       updatedAt: portfolio.updatedAt,
       stacks: portfolio.portfolioStacks.map((ps: any) => ({
@@ -251,7 +260,7 @@ export class PortfolioRepository extends CommonRepository<PortfolioResponseDto> 
 
   // 추천 포트폴리오 (조회수 기준 상위 10개)
   async findRecommended(): Promise<PortfolioResponseDto[]> {
-    return this.model.findMany({
+    const portfolios = await this.model.findMany({
       where: {
         isPublic: 'PUBLIC', // PUBLIC 포트폴리오만
       },
@@ -269,10 +278,16 @@ export class PortfolioRepository extends CommonRepository<PortfolioResponseDto> 
         isPublic: true,
         greeting: true,
         introduction: true,
+        aboutMe: true,
         createdAt: true,
         updatedAt: true,
       },
     });
+
+    return portfolios.map((p: any) => ({
+      ...p,
+      aboutMe: p.aboutMe ? JSON.parse(p.aboutMe) : undefined,
+    }));
   }
 
   // 포트폴리오 검색
@@ -282,7 +297,7 @@ export class PortfolioRepository extends CommonRepository<PortfolioResponseDto> 
     template?: 'IMAGE' | 'STANDARD',
     isPublic?: 'PUBLIC' | 'PRIVATE' | 'LINK'
   ): Promise<PortfolioResponseDto[]> {
-    return this.model.findMany({
+    const portfolios = await this.model.findMany({
       where: {
         AND: [
           keyword
@@ -309,10 +324,16 @@ export class PortfolioRepository extends CommonRepository<PortfolioResponseDto> 
         isPublic: true,
         greeting: true,
         introduction: true,
+        aboutMe: true,
         createdAt: true,
         updatedAt: true,
       },
     });
+
+    return portfolios.map((p: any) => ({
+      ...p,
+      aboutMe: p.aboutMe ? JSON.parse(p.aboutMe) : undefined,
+    }));
   }
 
   // 조회수 증가

@@ -53,6 +53,16 @@ const controller = new PortfolioController();
  *         Introduction:
  *           type: string
  *           description: 소개글
+ *         aboutMe:
+ *           type: array
+ *           items:
+ *             type: object
+ *             properties:
+ *               title:
+ *                 type: string
+ *               content:
+ *                 type: string
+ *           description: 자기소개 섹션 배열
  *         thumbnail:
  *           type: string
  *           description: 썸네일 URL
@@ -80,6 +90,15 @@ const controller = new PortfolioController();
  *           type: string
  *         introduction:
  *           type: string
+ *         aboutMe:
+ *           type: array
+ *           items:
+ *             type: object
+ *             properties:
+ *               title:
+ *                 type: string
+ *               content:
+ *                 type: string
  *         createdAt:
  *           type: string
  *           format: date-time

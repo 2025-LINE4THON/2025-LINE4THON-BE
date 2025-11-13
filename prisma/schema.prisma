@@ -95,6 +95,7 @@ model Portfolio {
   isPublic  Visibiliity     
   greeting  String?
   introduction String?
+  aboutMe      String?
 
 
   user     User     @relation(fields: [userId], references: [userId])
