@@ -94,14 +94,39 @@ jobs:
             echo "📦 Pulling latest Docker image..."
             sudo docker pull 457271242652.dkr.ecr.ap-northeast-2.amazonaws.com/portfolis:latest
 
+            # 포트 3000 사용 중인 프로세스 종료
+            echo "🛑 Stopping processes on port 3000..."
+            sudo lsof -ti:3000 | xargs sudo kill -9 || true
+            sleep 2
+
             # 기존 컨테이너 정리
             echo "🧹 Cleaning up old container..."
             sudo docker stop portfolis || true
             sudo docker rm portfolis || true
 
+            # 데이터 디렉토리 생성
+            echo "📁 Creating data directories..."
+            mkdir -p /home/ubuntu/data
+            mkdir -p /home/ubuntu/uploads
+
             # 새 컨테이너 실행
             echo "🚀 Running new container..."
-            sudo docker run -d -p 3000:3000 --name portfolis 457271242652.dkr.ecr.ap-northeast-2.amazonaws.com/portfolis:latest
+            sudo docker run -d \
+              -p 3000:3000 \
+              --name portfolis \
+              -e NODE_ENV=production \
+              -e PORT=3000 \
+              -e DATABASE_URL=file:/app/data/dev.db \
+              -e JWT_SECRET="${{ secrets.JWT_SECRET }}" \
+              -e JWT_REFRESH_SECRET="${{ secrets.JWT_REFRESH_SECRET }}" \
+              -e JWT_EXPIRES_IN=3d \
+              -e JWT_REFRESH_EXPIRES_IN=7d \
+              -e CORS_ORIGIN=https://portpolis.site \
+              -e COOKIE_SECRET="${{ secrets.COOKIE_SECRET }}" \
+              -v /home/ubuntu/data:/app/data \
+              -v /home/ubuntu/uploads:/app/uploads \
+              --restart unless-stopped \
+              457271242652.dkr.ecr.ap-northeast-2.amazonaws.com/portfolis:latest
 
             echo "✅ Deployment complete!"
             sudo docker ps | grep portfolis

@@ -18,6 +18,11 @@ const CareerInputSchema = z.object({
   description: z.string(),
 });
 
+const AboutMeSchema = z.object({
+  title: z.string(),
+  content: z.string(),
+});
+
 // Portfolio 생성 DTO (API 명세에 맞춤)
 export const CreatePortfolioDto = z.object({
   template: TemplateEnum, // API 명세: template
@@ -27,6 +32,7 @@ export const CreatePortfolioDto = z.object({
   title: z.string().min(1, '제목은 필수입니다'),
   greeting: z.string().optional(), // API 명세: greeting
   introduction: z.string().optional(), // API 명세: Introduction (대문자 I)
+  aboutMe: z.array(AboutMeSchema).optional(), // API 명세: aboutMe
   thumbnail: z.string().optional(), // API 명세: thumbnail
   isPublic: VisibilityEnum, // API 명세: isPublic (public | private | link)
 });
@@ -40,6 +46,7 @@ export const UpdatePortfolioDto = z.object({
   title: z.string().min(1, '제목은 필수입니다').optional(),
   greeting: z.string().optional(),
   introduction: z.string().optional(),
+  aboutMe: z.array(AboutMeSchema).optional(),
   thumbnail: z.string().optional(),
   isPublic: VisibilityEnum.optional(),
 });
@@ -53,6 +60,9 @@ export type SkillInput = z.infer<typeof SkillInputSchema>;
 // Career 입력 타입
 export type CareerInput = z.infer<typeof CareerInputSchema>;
 
+// AboutMe 입력 타입
+export type AboutMeInput = z.infer<typeof AboutMeSchema>;
+
 // Portfolio 응답 DTO
 export interface PortfolioResponseDto {
   portfolioId: number;
@@ -64,6 +74,7 @@ export interface PortfolioResponseDto {
   isPublic: 'PUBLIC' | 'PRIVATE' | 'LINK';
   greeting?: string;
   introduction?: string;
+  aboutMe?: AboutMeInput[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -106,6 +117,7 @@ export interface PortfolioDetailResponseDto {
   isPublic: 'PUBLIC' | 'PRIVATE' | 'LINK';
   greeting?: string;
   introduction?: string;
+  aboutMe?: AboutMeInput[];
   createdAt: Date;
   updatedAt: Date;
   stacks: StackDto[];

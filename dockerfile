@@ -12,11 +12,11 @@ COPY package.json pnpm-lock.yaml* ./
 # --frozen-lockfile: lockfile과 정확히 일치
 RUN pnpm install --frozen-lockfile
 
-RUN pnpm approve-builds @prisma/client @prisma/engines prisma bcrypt
-RUN pnpm exec prisma generate
-
-# 소스 복사
+# 소스 복사 (Prisma 스키마 포함)
 COPY . .
+
+# Prisma Client 생성
+RUN pnpm exec prisma generate
 
 # 빌드 (package.json에 "build" 스크립트가 있어야 함)
 RUN pnpm run build
@@ -25,12 +25,21 @@ RUN pnpm run build
 FROM node:20-alpine AS runtime
 WORKDIR /app
 
-# production 의존성만 설치 (앱 실행에 필요한 것들)
-# 복사한 package.json으로 production 설치
-COPY package.json pnpm-lock.yaml* ./
-RUN corepack enable && pnpm install --frozen-lockfile --prod
+# corepack enable
+RUN corepack enable
 
-# 빌드된 산출물만 복사
+# production 의존성만 설치 (앱 실행에 필요한 것들)
+COPY package.json pnpm-lock.yaml* ./
+RUN pnpm install --frozen-lockfile --prod
+
+# Prisma 스키마 복사 (런타임에 필요)
+COPY --from=builder /app/prisma ./prisma
+
+# Prisma Client 복사
+COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
+COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
+
+# 빌드된 산출물 복사
 COPY --from=builder /app/dist ./dist
 
 ENV NODE_ENV=production
