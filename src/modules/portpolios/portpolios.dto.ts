@@ -34,6 +34,7 @@ export const CreatePortfolioDto = z.object({
   introduction: z.string().optional(), // API 명세: Introduction (대문자 I)
   aboutMe: z.array(AboutMeSchema).optional(), // API 명세: aboutMe
   thumbnail: z.string().optional(), // API 명세: thumbnail
+  coverImage: z.string().optional(), // 추가: coverImage
   isPublic: VisibilityEnum, // API 명세: isPublic (public | private | link)
 });
 
@@ -48,6 +49,7 @@ export const UpdatePortfolioDto = z.object({
   introduction: z.string().optional(),
   aboutMe: z.array(AboutMeSchema).optional(),
   thumbnail: z.string().optional(),
+  coverImage: z.string().optional(),
   isPublic: VisibilityEnum.optional(),
 });
 
@@ -75,6 +77,7 @@ export interface PortfolioResponseDto {
   greeting?: string;
   introduction?: string;
   aboutMe?: AboutMeInput[];
+  coverImage?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -112,6 +115,7 @@ export interface PortfolioDetailResponseDto {
   userId: number;
   title: string;
   thumbnail?: string;
+  coverImage?: string;
   template: 'IMAGE' | 'STANDARD';
   views: number;
   isPublic: 'PUBLIC' | 'PRIVATE' | 'LINK';
@@ -128,7 +132,7 @@ export interface PortfolioDetailResponseDto {
 // Portfolio 검색 파라미터
 export interface PortfolioSearchParam {
   keyword?: string;
-  sort?: 'recent' | 'views';
+  sort?: 'recent' | 'views' | 'likes';
   template?: 'IMAGE' | 'STANDARD';
   isPublic?: 'PUBLIC' | 'PRIVATE' | 'LINK';
 }
