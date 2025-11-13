@@ -14,11 +14,11 @@ const controller = new PortfolioController();
  *     PortfolioCreate:
  *       type: object
  *       required:
- *         - portpolioTemplate
+ *         - template
  *         - title
  *         - isPublic
  *       properties:
- *         portpolioTemplate:
+ *         template:
  *           type: string
  *           enum: [STANDARD, IMAGE]
  *           description: 포트폴리오 템플릿 타입
@@ -50,7 +50,7 @@ const controller = new PortfolioController();
  *         greeting:
  *           type: string
  *           description: 인사말
- *         Introduction:
+ *         introduction:
  *           type: string
  *           description: 소개글
  *         aboutMe:

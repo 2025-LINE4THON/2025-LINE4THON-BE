@@ -35,9 +35,8 @@ RUN pnpm install --frozen-lockfile --prod
 # Prisma 스키마 복사 (런타임에 필요)
 COPY --from=builder /app/prisma ./prisma
 
-# Prisma Client 복사
-COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
-COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
+# Prisma Client 복사 (pnpm 구조)
+COPY --from=builder /app/node_modules/.pnpm ./node_modules/.pnpm
 
 # 빌드된 산출물 복사
 COPY --from=builder /app/dist ./dist
@@ -45,5 +44,11 @@ COPY --from=builder /app/dist ./dist
 ENV NODE_ENV=production
 EXPOSE 3000
 
-# 엔트리(프로젝트에 따라 조정)
-CMD ["node", "dist/index.js"]
+# 시작 스크립트 생성
+RUN echo '#!/bin/sh' > /app/start.sh && \
+    echo 'npx prisma migrate deploy' >> /app/start.sh && \
+    echo 'node dist/index.js' >> /app/start.sh && \
+    chmod +x /app/start.sh
+
+# 엔트리포인트: 마이그레이션 후 서버 시작
+CMD ["/app/start.sh"]

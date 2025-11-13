@@ -20,11 +20,31 @@ import userRouter from './modules/users/user.routes';
 const app = express();
 
 // Security middleware
-app.use(helmet());
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "cross-origin" }
+}));
 app.use(
   cors({
-    origin: env.CORS_ORIGIN,
+    origin: (origin, callback) => {
+      // 허용할 도메인 목록
+      const allowedOrigins = [
+        'https://portpolis.site',
+        'https://www.portpolis.site',
+        'https://portpolis-fe.vercel.app',
+        'http://localhost:5173',
+        'http://localhost:3000'
+      ];
+      
+      // origin이 없는 경우(Postman 등) 또는 허용 목록에 있는 경우
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
   }),
 );
 
