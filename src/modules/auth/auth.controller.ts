@@ -11,8 +11,8 @@ export class AuthController {
   }
 
   // 회원가입
-  register = asyncHandler(async (req: Request, res: Response) => {
-    const user = await this.authService.register(req.body);
+  signup = asyncHandler(async (req: Request, res: Response) => {
+    const user = await this.authService.signup(req.body);
     createdResponse(res, user, '회원가입이 완료되었습니다.');
   });
 
@@ -47,5 +47,28 @@ export class AuthController {
   logout = asyncHandler(async (req: Request, res: Response) => {
     // 프론트에서 localStorage에서 토큰을 삭제하므로 서버에서는 성공 응답만 반환
     successResponse(res, null, 200, '로그아웃 성공');
+  });
+
+  // 아이디 중복 확인
+  checkId = asyncHandler(async (req: Request, res: Response) => {
+    const result = await this.authService.checkId(req.body);
+    
+    if (result.success) {
+      res.status(200).json({
+        message: result.message,
+        data: {
+          success: result.success,
+        },
+        statusCode: 200,
+      });
+    } else {
+      res.status(400).json({
+        message: result.message,
+        data: {
+          success: result.success,
+        },
+        statusCode: 400,
+      });
+    }
   });
 }

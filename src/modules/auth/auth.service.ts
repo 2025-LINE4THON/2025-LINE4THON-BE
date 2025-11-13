@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 import { env } from '../../config/env';
 import { AppError } from '../../middleware/errorHandler';
 import { AuthRepository } from './auth.repository';
-import { RegisterInput, LoginInput } from './auth.dto';
+import { SignupRequest, LoginInput, CheckIdRequest } from './auth.dto';
 
 export class AuthService {
   private authRepository: AuthRepository;
@@ -13,7 +13,7 @@ export class AuthService {
   }
 
   // 회원가입
-  async register(data: RegisterInput) {
+  async signup(data: SignupRequest) {
     // 사용자 존재 여부 확인
     const existingUser = await this.authRepository.findByUsername(data.username);
 
@@ -66,7 +66,7 @@ export class AuthService {
 
     // Refresh Token 생성 (7일)
     const refreshToken = jwt.sign(
-      { userId: user.userId },
+      { userId: user.userId, username: user.username },
       env.JWT_REFRESH_SECRET,
       { expiresIn: env.JWT_REFRESH_EXPIRES_IN } as jwt.SignOptions
     );
@@ -88,6 +88,7 @@ export class AuthService {
       // Refresh Token 검증
       const decoded = jwt.verify(refreshToken, env.JWT_REFRESH_SECRET) as {
         userId: number;
+        username: string;
       };
 
       // 사용자 확인
@@ -109,5 +110,22 @@ export class AuthService {
     } catch (error) {
       throw new AppError('유효하지 않은 Refresh Token입니다.', 401);
     }
+  }
+
+  // 아이디 중복 확인
+  async checkId(data: CheckIdRequest) {
+    const existingUser = await this.authRepository.findByUsername(data.username);
+
+    if (existingUser) {
+      return {
+        success: false,
+        message: '중복된 아이디입니다',
+      };
+    }
+
+    return {
+      success: true,
+      message: '사용 가능한 아이디입니다',
+    };
   }
 }

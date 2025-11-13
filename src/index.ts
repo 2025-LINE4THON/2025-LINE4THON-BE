@@ -4,10 +4,18 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import compression from 'compression';
 import cookieParser from 'cookie-parser';
+import swaggerUi from 'swagger-ui-express';
 import { env } from './config/env';
 import { prisma } from './config/database';
+import { swaggerSpec } from './config/swagger';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler';
 import authRouter from './modules/auth/auth.routes';
+import portfolioRouter from './modules/portpolios/portpolio.route';
+import { projectRouter } from './modules/projects/project.routes';
+import { careerRouter } from './modules/careers/career.routes';
+import { licenseRouter } from './modules/licenses/license.routes';
+import { stackRouter } from './modules/stacks/stack.routes';
+import userRouter from './modules/users/user.routes';
 
 const app = express();
 
@@ -38,10 +46,20 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
+// Swagger API Documentation
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+  customCss: '.swagger-ui .topbar { display: none }',
+  customSiteTitle: 'LikeLion Portfolio API Docs',
+}));
+
 // API routes
 app.use('/api/auth', authRouter);
-// app.use('/api/users', usersRouter);
-// app.use('/api/portfolios', portfoliosRouter);
+app.use('/api/users', userRouter);
+app.use('/api', portfolioRouter);
+app.use('/api', projectRouter);
+app.use('/api', careerRouter);
+app.use('/api', licenseRouter);
+app.use('/api', stackRouter);
 
 // 404 handler
 app.use(notFoundHandler);
@@ -55,7 +73,8 @@ const server = app.listen(env.PORT, () => {
   ================================================
   🚀 Server running in ${env.NODE_ENV} mode
   🌐 URL: http://localhost:${env.PORT}
-  📅 Started at: ${new Date().toLocaleString()}
+  � API Docs: http://localhost:${env.PORT}/api-docs
+  �📅 Started at: ${new Date().toLocaleString()}
   ================================================
   `);
 });

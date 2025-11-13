@@ -7,7 +7,7 @@ export class AuthRepository extends CommonRepository<User> {
     super(prisma, prisma.user);
   }
 
-  // 사용자명으로 사용자 찾기
+  // username으로 사용자 찾기
   async findByUsername(username: string): Promise<User | null> {
     return this.model.findFirst({
       where: { username },
@@ -27,8 +27,8 @@ export class AuthRepository extends CommonRepository<User> {
       data,
       select: {
         userId: true,
-        name: true,
         username: true,
+        name: true,
         email: true,
         phoneNumber: true,
         introduction: true,

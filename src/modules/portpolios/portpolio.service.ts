@@ -1,33 +1,83 @@
-import { prisma } from "../../config/database";
+import { CommonService } from '../../common/common.service';
+import { PortfolioRepository } from './portfolio.repository';
+import { 
+  PortfolioResponseDto,
+  PortfolioDetailResponseDto,
+  CreatePortfolioDtoType,
+  UpdatePortfolioDtoType,
+  PortfolioSearchParam
+} from './portpolios.dto';
 
-interface CreatePortfolioInput {
-  userId: string;
-  title: string;
-  description?: string;
-  projectIds: string[];
-  careerIds: string[];
-  skillIds: string[];
+export class PortfolioService extends CommonService<PortfolioResponseDto> {
+  private portfolioRepository: PortfolioRepository;
+
+  constructor() {
+    const repository = new PortfolioRepository();
+    super(repository);
+    this.portfolioRepository = repository;
+  }
+
+  // 포트폴리오 생성 (Relations 포함)
+  async createPortfolio(userId: number, data: CreatePortfolioDtoType) {
+    return this.portfolioRepository.createWithRelations(userId, data);
+  }
+
+  // 포트폴리오 수정 (Relations 포함)
+  async updatePortfolio(
+    portfolioId: number,
+    userId: number,
+    data: UpdatePortfolioDtoType
+  ) {
+    // 권한 확인
+    const portfolio = await this.portfolioRepository.findByIdAndUserId(portfolioId, userId);
+    if (!portfolio) {
+      throw new Error('포트폴리오를 찾을 수 없거나 수정 권한이 없습니다');
+    }
+
+    return this.portfolioRepository.updateWithRelations(portfolioId, userId, data);
+  }
+
+  // 포트폴리오 삭제
+  async deletePortfolio(portfolioId: number, userId: number) {
+    // 권한 확인
+    const portfolio = await this.portfolioRepository.findByIdAndUserId(portfolioId, userId);
+    if (!portfolio) {
+      throw new Error('포트폴리오를 찾을 수 없거나 삭제 권한이 없습니다');
+    }
+
+    return this.portfolioRepository.deletePortfolio(portfolioId);
+  }
+
+  // 사용자별 포트폴리오 목록 조회
+  async getPortfoliosByUserId(userId: number): Promise<PortfolioResponseDto[]> {
+    return this.portfolioRepository.findByUserId(userId);
+  }
+
+  // 포트폴리오 상세 조회 (조회수 증가)
+  async getPortfolioDetail(portfolioId: number): Promise<PortfolioDetailResponseDto | null> {
+    const portfolio = await this.portfolioRepository.findByIdWithRelations(portfolioId);
+    
+    if (portfolio) {
+      // 조회수 증가 (비동기로 실행, 응답 지연 방지)
+      this.portfolioRepository.incrementViews(portfolioId).catch(console.error);
+    }
+
+    return portfolio;
+  }
+
+  // 추천 포트폴리오 조회
+  async getRecommendedPortfolios(): Promise<PortfolioResponseDto[]> {
+    return this.portfolioRepository.findRecommended();
+  }
+
+  // 포트폴리오 검색
+  async searchPortfolios(params: PortfolioSearchParam): Promise<PortfolioResponseDto[]> {
+    return this.portfolioRepository.searchPortfolios(
+      params.keyword,
+      params.sort,
+      params.template,
+      params.isPublic
+    );
+  }
 }
 
-export const createPortfolio = async (data: CreatePortfolioInput) => {
-  const { userId, title, description, projectIds, careerIds, skillIds } = data;
-
-  // 1️⃣ 유효성 검사
-const user = await prisma.user.findUnique({ where: { userId } });
-  if (!user) throw new Error('User not found');
-
-  // 2️⃣ 포트폴리오 생성 및 연결
-  const portfolio = await prisma.portfolio.create({
-    data: {
-      title,
-      description,
-      userId,
-      projects: { connect: projectIds.map(id => ({ id })) },
-      careers: { connect: careerIds.map(id => ({ id })) },
-      skills: { connect: skillIds.map(id => ({ id })) },
-    },
-    include: { projects: true, careers: true, skills: true },
-  });
-
-  return portfolio;
-};
