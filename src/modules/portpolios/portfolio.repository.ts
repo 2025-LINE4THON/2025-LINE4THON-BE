@@ -22,6 +22,7 @@ export class PortfolioRepository extends CommonRepository<PortfolioResponseDto> 
         data: {
           title: portfolioData.title,
           thumbnail: portfolioData.thumbnail,
+          coverImage: portfolioData.coverImage,
           template: template,
           isPublic: portfolioData.isPublic,
           greeting: portfolioData.greeting,
@@ -84,6 +85,7 @@ export class PortfolioRepository extends CommonRepository<PortfolioResponseDto> 
       const updateData: any = {};
       if (portfolioData.title !== undefined) updateData.title = portfolioData.title;
       if (portfolioData.thumbnail !== undefined) updateData.thumbnail = portfolioData.thumbnail;
+      if (portfolioData.coverImage !== undefined) updateData.coverImage = portfolioData.coverImage;
       if (template !== undefined) updateData.template = template;
       if (portfolioData.isPublic !== undefined) updateData.isPublic = portfolioData.isPublic;
       if (portfolioData.greeting !== undefined) updateData.greeting = portfolioData.greeting;
@@ -170,6 +172,7 @@ export class PortfolioRepository extends CommonRepository<PortfolioResponseDto> 
         userId: true,
         title: true,
         thumbnail: true,
+        coverImage: true,
         template: true,
         views: true,
         isPublic: true,
@@ -223,6 +226,7 @@ export class PortfolioRepository extends CommonRepository<PortfolioResponseDto> 
       userId: portfolio.userId,
       title: portfolio.title,
       thumbnail: portfolio.thumbnail ?? undefined,
+      coverImage: (portfolio as any).coverImage ?? undefined,
       template: portfolio.template,
       views: portfolio.views,
       isPublic: portfolio.isPublic,
@@ -273,6 +277,7 @@ export class PortfolioRepository extends CommonRepository<PortfolioResponseDto> 
         userId: true,
         title: true,
         thumbnail: true,
+        coverImage: true,
         template: true,
         views: true,
         isPublic: true,
@@ -319,6 +324,7 @@ export class PortfolioRepository extends CommonRepository<PortfolioResponseDto> 
         userId: true,
         title: true,
         thumbnail: true,
+        coverImage: true,
         template: true,
         views: true,
         isPublic: true,

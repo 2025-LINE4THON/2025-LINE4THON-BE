@@ -96,6 +96,7 @@ model Portfolio {
   greeting  String?
   introduction String?
   aboutMe      String?
+  coverImage   String?
 
 
   user     User     @relation(fields: [userId], references: [userId])

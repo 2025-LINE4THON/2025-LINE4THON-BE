@@ -66,6 +66,9 @@ const controller = new PortfolioController();
  *         thumbnail:
  *           type: string
  *           description: 썸네일 URL
+ *         coverImage:
+ *           type: string
+ *           description: 커버 이미지 URL
  *         isPublic:
  *           type: string
  *           enum: [PUBLIC, PRIVATE, LINK]
@@ -79,6 +82,8 @@ const controller = new PortfolioController();
  *         title:
  *           type: string
  *         thumbnail:
+ *           type: string
+ *         coverImage:
  *           type: string
  *         template:
  *           type: string
