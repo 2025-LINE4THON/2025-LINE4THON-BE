@@ -45,8 +45,11 @@ export function validatePartial<T>(
   schema: ZodSchema<T>,
   data: unknown,
 ): Partial<T> {
-  const partialSchema = schema instanceof ZodObject ? schema.partial() : schema;
-  return validate(partialSchema, data);
+  if (schema instanceof ZodObject) {
+    const partialSchema = schema.partial();
+    return validate(partialSchema as ZodSchema<Partial<T>>, data);
+  }
+  return validate(schema, data) as Partial<T>;
 }
 
 /**
