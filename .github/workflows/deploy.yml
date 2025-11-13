@@ -108,6 +108,15 @@ jobs:
             echo "📁 Creating data directories..."
             mkdir -p /home/ubuntu/data
             mkdir -p /home/ubuntu/uploads
+            mkdir -p /home/ubuntu/backups
+
+            # 기존 DB 백업 (있는 경우)
+            if [ -f /home/ubuntu/data/dev.db ]; then
+              echo "💾 Backing up existing database..."
+              cp /home/ubuntu/data/dev.db /home/ubuntu/backups/dev.db.$(date +%Y%m%d_%H%M%S)
+              # 최근 5개만 유지
+              ls -t /home/ubuntu/backups/dev.db.* | tail -n +6 | xargs -r rm
+            fi
 
             # 새 컨테이너 실행
             echo "🚀 Running new container..."
