@@ -40,10 +40,10 @@ export class StackRepository {
     return !!s && s.userId === userId;
   }
 
-  // FK(PortfolioStack, ProjectStack) 참조 끊기
+  // FK(PortfolioStack) 참조 끊기
   async detachRelations(stackId: number) {
     await prisma.portfolioStack.deleteMany({ where: { stackId } });
-    await prisma.projectStack.deleteMany({ where: { stackId } });
+    // ProjectStack은 더 이상 stackId를 사용하지 않음
   }
 
   // 같은 유저 내 중복 이름 방지(선택)
