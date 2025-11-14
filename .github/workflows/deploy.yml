@@ -132,6 +132,7 @@ jobs:
               -e JWT_REFRESH_EXPIRES_IN=7d \
               -e CORS_ORIGIN=https://portpolis.site \
               -e COOKIE_SECRET="${{ secrets.COOKIE_SECRET }}" \
+              -e SERVER_URL="${{ secrets.SERVER_URL }}" \
               -v /home/ubuntu/data:/app/data \
               -v /home/ubuntu/uploads:/app/uploads \
               --restart unless-stopped \
