@@ -1,3 +1,4 @@
+import { title } from 'process';
 import { CommonRepository } from '../../common/common.repository';
 import { prisma } from '../../config/database';
 import { 
@@ -270,6 +271,7 @@ export class PortfolioRepository extends CommonRepository<PortfolioResponseDto> 
             startDate: true,
             endDate: true,
             projectContents: {
+              where: { title: "프로젝트 핵심 요약" }, // 대표 내용 1개만
               select: {
                 content: true,
               },
