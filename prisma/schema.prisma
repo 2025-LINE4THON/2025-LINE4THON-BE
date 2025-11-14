@@ -113,29 +113,32 @@ model Portfolio {
 }
 
 model PortfolioStack {
-  stackId      Int
+  stackId      Int?     // Optional: 원본 Stack 참조 (삭제되면 null)
   portfolioId  Int
   userId       Int
   rank         Int
+  stackName    String   // 스냅샷: 포트폴리오 생성 당시의 스택 이름
+  stackLevel   String?  // 스냅샷: 포트폴리오 생성 당시의 스택 레벨
+  portfolioStackId Int  @id @default(autoincrement())
 
   portfolio Portfolio @relation(fields: [portfolioId], references: [portfolioId])
-  stack     Stack     @relation(fields: [stackId], references: [stackId])
+  stack     Stack?    @relation(fields: [stackId], references: [stackId], onDelete: SetNull)
   user      User      @relation(fields: [userId], references: [userId])
-
-  @@id([stackId, portfolioId, userId])
 }
 
 model PortfolioCareer {
-  careerId    Int
+  careerId    Int?     // Optional: 원본 Career 참조 (삭제되면 null)
   portfolioId Int
   userId      Int
   description String?
+  content     String   // 스냅샷: 포트폴리오 생성 당시의 경력 내용
+  startDate   DateTime // 스냅샷: 시작일
+  endDate     DateTime? // 스냅샷: 종료일
+  portfolioCareerId Int @id @default(autoincrement())
 
-  career    Career    @relation(fields: [careerId], references: [careerId])
+  career    Career?   @relation(fields: [careerId], references: [careerId], onDelete: SetNull)
   portfolio Portfolio @relation(fields: [portfolioId], references: [portfolioId])
   user      User      @relation(fields: [userId], references: [userId])
-
-  @@id([careerId, portfolioId, userId])
 }
 
 model PortfolioLicense {
