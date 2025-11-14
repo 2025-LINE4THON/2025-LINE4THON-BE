@@ -55,7 +55,7 @@ export class CareerRepository {
 
   // 기존 경력 모두 삭제 후 새로 생성 (배열 일괄 처리)
   async bulkUpdate(userId: number, careers: Array<{ content: string; startDate: Date; endDate?: Date | null }>) {
-    // 1. 기존 경력 모두 삭제
+    // 1. 기존 경력 모두 삭제 (FK는 onDelete: SetNull이므로 포트폴리오는 영향 없음)
     await this.model.deleteMany({ where: { userId } });
 
     // 2. 새로운 경력 일괄 생성
