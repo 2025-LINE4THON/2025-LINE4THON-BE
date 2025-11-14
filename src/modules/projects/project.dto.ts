@@ -14,7 +14,7 @@ export const createProjectSchema = z.object({
   })).optional(),
   contents: z.array(z.object({
     title: z.string().min(1),
-    content: z.string().min(1),
+    content: z.string(),  // 빈 문자열 허용
   })).optional(),
   images: z.array(z.string().url()).optional(),
   links: z.array(z.object({

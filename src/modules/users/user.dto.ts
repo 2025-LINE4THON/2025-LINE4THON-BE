@@ -2,8 +2,10 @@ import { z } from 'zod';
 
 // UserLink 생성/수정 DTO
 export const CreateUserLinkDto = z.object({
-  linkType: z.string().min(1, '링크 타입은 필수입니다'), // github, blog, notion, instagram, youtube, etc
-  url: z.string().url('유효한 URL을 입력해주세요'),
+  links: z.array(z.object({
+    linkType: z.string().min(1, '링크 타입은 필수입니다'),
+    url: z.string().url('유효한 URL을 입력해주세요'),
+  })),
 });
 
 export const UpdateUserLinkDto = z.object({
@@ -44,4 +46,5 @@ export interface UserInfoResponse {
   introduction?: string;
   job?: string;
   projectCount?: number;
+  links?: UserLinkResponse[];
 }
