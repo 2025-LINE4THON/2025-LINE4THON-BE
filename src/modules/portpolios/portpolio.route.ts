@@ -1,4 +1,6 @@
 import { Router } from 'express';
+import multer from 'multer';
+import path from 'path';
 import { PortfolioController } from './porpolio.controller';
 import { validate } from '../../middleware/validate';
 import { CreatePortfolioDto, UpdatePortfolioDto } from './portpolios.dto';
@@ -6,6 +8,34 @@ import { authenticate } from '../../middleware/authenticate';
 
 const router = Router();
 const controller = new PortfolioController();
+
+// Multer 설정
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/');
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+    const ext = path.extname(file.originalname);
+    const basename = path.basename(file.originalname, ext);
+    cb(null, `${basename}-${uniqueSuffix}${ext}`);
+  },
+});
+
+const fileFilter = (req: any, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
+  const allowedMimeTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+  if (allowedMimeTypes.includes(file.mimetype)) {
+    cb(null, true);
+  } else {
+    cb(new Error('이미지 파일만 업로드 가능합니다'));
+  }
+};
+
+const upload = multer({
+  storage,
+  fileFilter,
+  limits: { fileSize: 10 * 1024 * 1024 },
+});
 
 /**
  * @swagger
@@ -275,6 +305,46 @@ router.get('/portfolios/recommend', controller.getRecommended);
 
 /**
  * @swagger
+ * /api/portfolios/check:
+ *   get:
+ *     summary: 포트폴리오 필수 요소 확인
+ *     description: 사용자가 포트폴리오 생성에 필요한 필수 요소(경력, 기술스택, 프로젝트, 직군)를 입력했는지 확인
+ *     tags: [Portfolio]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: 필수 요소 확인 성공
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     career:
+ *                       type: boolean
+ *                       description: 경력 입력 여부
+ *                     stack:
+ *                       type: boolean
+ *                       description: 기술스택 입력 여부
+ *                     project:
+ *                       type: boolean
+ *                       description: 프로젝트 입력 여부
+ *                     job:
+ *                       type: boolean
+ *                       description: 직군 입력 여부
+ *       401:
+ *         description: 인증 필요
+ */
+router.get('/portfolios/check', authenticate, controller.checkPortfolioRequirements);
+
+/**
+ * @swagger
  * /api/users/{userId}/portfolios:
  *   get:
  *     summary: 사용자별 포트폴리오 조회
@@ -358,7 +428,11 @@ router.get('/portfolios/:id', controller.getPortfolioDetail);
  *       401:
  *         description: 인증 필요
  */
-router.post('/portfolios', authenticate, validate(CreatePortfolioDto), controller.createPortfolio);
+router.post('/portfolios', 
+  authenticate, 
+  upload.fields([{ name: 'thumbnail', maxCount: 1 }, { name: 'coverImage', maxCount: 1 }]),
+  controller.createPortfolio
+);
 
 /**
  * @swagger
@@ -386,7 +460,11 @@ router.post('/portfolios', authenticate, validate(CreatePortfolioDto), controlle
  *       403:
  *         description: 권한 없음
  */
-router.patch('/portfolios/:id', authenticate, validate(UpdatePortfolioDto), controller.updatePortfolio);
+router.patch('/portfolios/:id', 
+  authenticate, 
+  upload.fields([{ name: 'thumbnail', maxCount: 1 }, { name: 'coverImage', maxCount: 1 }]),
+  controller.updatePortfolio
+);
 
 /**
  * @swagger
@@ -409,47 +487,6 @@ router.patch('/portfolios/:id', authenticate, validate(UpdatePortfolioDto), cont
  *         description: 권한 없음
  */
 router.delete('/portfolios/:id', authenticate, controller.deletePortfolio);
-
-
-/**
- * @swagger
- * /api/portfolios/check:
- *   get:
- *     summary: 포트폴리오 필수 요소 확인
- *     description: 사용자가 포트폴리오 생성에 필요한 필수 요소(경력, 기술스택, 프로젝트, 직군)를 입력했는지 확인
- *     tags: [Portfolio]
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: 필수 요소 확인 성공
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 status:
- *                   type: string
- *                   example: success
- *                 data:
- *                   type: object
- *                   properties:
- *                     career:
- *                       type: boolean
- *                       description: 경력 입력 여부
- *                     stack:
- *                       type: boolean
- *                       description: 기술스택 입력 여부
- *                     project:
- *                       type: boolean
- *                       description: 프로젝트 입력 여부
- *                     job:
- *                       type: boolean
- *                       description: 직군 입력 여부
- *       401:
- *         description: 인증 필요
- */
-router.get('/portfolios/check', authenticate, controller.checkPortfolioRequirements);
 
 /**
  * @swagger
