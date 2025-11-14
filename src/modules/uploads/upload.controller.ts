@@ -13,24 +13,24 @@ export class UploadController {
     try {
       if (!req.file) {
         return res.status(400).json({
-          status: 'error',
           message: '파일이 업로드되지 않았습니다',
+          data: null,
+          statusCode: 400,
         });
       }
 
-      const imageUrl = this.uploadService.getImageUrl(req.file.filename);
+      const url = this.uploadService.getImageUrl(req.file.filename);
 
       res.status(200).json({
-        status: 'success',
-        data: {
-          imageUrl,
-          filename: req.file.filename,
-        },
+        message: '이미지 업로드 성공',
+        data: { url },
+        statusCode: 200,
       });
     } catch (error: any) {
       res.status(500).json({
-        status: 'error',
         message: error.message,
+        data: null,
+        statusCode: 500,
       });
     }
   };
@@ -40,24 +40,24 @@ export class UploadController {
     try {
       if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
         return res.status(400).json({
-          status: 'error',
           message: '파일이 업로드되지 않았습니다',
+          data: null,
+          statusCode: 400,
         });
       }
 
-      const imageUrls = req.files.map((file) => ({
-        imageUrl: this.uploadService.getImageUrl(file.filename),
-        filename: file.filename,
-      }));
+      const urls = req.files.map((file) => this.uploadService.getImageUrl(file.filename));
 
       res.status(200).json({
-        status: 'success',
-        data: imageUrls,
+        message: '이미지 업로드 성공',
+        data: { urls },
+        statusCode: 200,
       });
     } catch (error: any) {
       res.status(500).json({
-        status: 'error',
         message: error.message,
+        data: null,
+        statusCode: 500,
       });
     }
   };
