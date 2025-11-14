@@ -190,15 +190,13 @@ model ProjectTag {
 }
 
 model ProjectStack {
-  stackId    Int
-  projectId  Int
-  userId     Int
-  stackName  String
+  projectStackId Int      @id @default(autoincrement())
+  projectId      Int
+  userId         Int
+  stackName      String
 
   project Project @relation(fields: [projectId], references: [projectId])
   user    User    @relation(fields: [userId], references: [userId])
-
-  @@id([stackId, projectId, userId])
 }
 
 model ProjectContent {
