@@ -9,7 +9,6 @@ export class StackRepository {
       where: { stackId },
       include: {
         portfolioStacks: true,
-        projectStacks: true,
       },
     });
   }
