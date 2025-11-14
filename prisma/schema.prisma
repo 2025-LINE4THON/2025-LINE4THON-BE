@@ -73,7 +73,6 @@ model Stack {
 
   user User @relation(fields: [userId], references: [userId])
   portfolioStacks PortfolioStack[]
-  projectStacks ProjectStack[]
 }
 
 enum Template {
@@ -198,7 +197,6 @@ model ProjectStack {
 
   project Project @relation(fields: [projectId], references: [projectId])
   user    User    @relation(fields: [userId], references: [userId])
-  stack   Stack   @relation(fields: [stackId], references: [stackId])
 
   @@id([stackId, projectId, userId])
 }
