@@ -34,8 +34,8 @@ jobs:
         run: |
           pnpm config set enable-pre-post-scripts true
           pnpm install --frozen-lockfile
-          pnpm exec prisma migrate deploy
-          pnpm exec prisma generate
+          DATABASE_URL=file:./dev.db pnpm exec prisma migrate deploy
+          DATABASE_URL=file:./dev.db pnpm exec prisma generate
           pnpm run build
 
       # 5️⃣ AWS 자격 증명 설정
