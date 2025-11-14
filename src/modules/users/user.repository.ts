@@ -115,16 +115,8 @@ export class UserRepository {
       where: { userId },
       orderBy: { createdAt: 'desc' },
       include: {
-        portfolioStacks: {
-          include: {
-            stack: true,
-          },
-        },
-        portfolioCareers: {
-          include: {
-            career: true,
-          },
-        },
+        portfolioStacks: true,
+        portfolioCareers: true,
         projects: {
           select: {
             projectId: true,

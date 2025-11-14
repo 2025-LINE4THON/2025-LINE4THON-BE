@@ -258,16 +258,9 @@ export class PortfolioRepository extends CommonRepository<PortfolioResponseDto> 
           },
         },
         portfolioStacks: {
-          include: {
-            stack: true,
-          },
           orderBy: { rank: 'asc' },
         },
-        portfolioCareers: {
-          include: {
-            career: true,
-          },
-        },
+        portfolioCareers: true,
         projects: {
           select: {
             projectId: true,
@@ -284,7 +277,7 @@ export class PortfolioRepository extends CommonRepository<PortfolioResponseDto> 
             },
             projectStacks: {
               select: {
-                stackId: true,
+                projectStackId: true,
                 stackName: true,
               },
             },
@@ -320,16 +313,16 @@ export class PortfolioRepository extends CommonRepository<PortfolioResponseDto> 
       createdAt: portfolio.createdAt,
       updatedAt: portfolio.updatedAt,
       stacks: portfolio.portfolioStacks.map((ps: any) => ({
-        stackId: ps.stack.stackId,
-        name: ps.stack.name,
-        level: ps.stack.level ?? undefined,
+        stackId: ps.stackId ?? undefined,
+        name: ps.stackName,
+        level: ps.stackLevel ?? undefined,
         rank: ps.rank,
       })),
       careers: portfolio.portfolioCareers.map((pc: any) => ({
-        careerId: pc.career.careerId,
-        content: pc.career.content,
-        startDate: pc.career.startDate,
-        endDate: pc.career.endDate ?? undefined,
+        careerId: pc.careerId ?? undefined,
+        content: pc.content,
+        startDate: pc.startDate,
+        endDate: pc.endDate ?? undefined,
         description: pc.description ?? undefined,
       })),
       licenses: (portfolio as any).user.licenses.map((license: any) => ({
@@ -347,7 +340,6 @@ export class PortfolioRepository extends CommonRepository<PortfolioResponseDto> 
         endDate: project.endDate ?? undefined,
         description: project.projectContents?.[0]?.content ?? undefined,
         stacks: project.projectStacks.map((ps: any) => ({
-          stackId: ps.stackId,
           stackName: ps.stackName,
         })),
         githubUrl: project.links?.find((link: any) => link.url?.includes('github.com'))?.url ?? undefined,
@@ -429,10 +421,20 @@ export class PortfolioRepository extends CommonRepository<PortfolioResponseDto> 
   // 포트폴리오 검색
   async searchPortfolios(
     keyword?: string,
-    sort: 'recent' | 'views' = 'recent',
+    sort: 'recent' | 'views' | 'likes' = 'recent',
     template?: 'IMAGE' | 'STANDARD',
     isPublic?: 'PUBLIC' | 'PRIVATE' | 'LINK'
   ): Promise<PortfolioResponseDto[]> {
+    // 정렬 조건 설정
+    let orderBy: any;
+    if (sort === 'recent') {
+      orderBy = { createdAt: 'desc' };
+    } else if (sort === 'views') {
+      orderBy = { views: 'desc' };
+    } else if (sort === 'likes') {
+      orderBy = { likesCount: 'desc' };
+    }
+
     const portfolios = await this.model.findMany({
       where: {
         AND: [
@@ -449,7 +451,7 @@ export class PortfolioRepository extends CommonRepository<PortfolioResponseDto> 
           isPublic ? { isPublic } : {},
         ],
       },
-      orderBy: sort === 'recent' ? { createdAt: 'desc' } : { views: 'desc' },
+      orderBy,
       select: {
         portfolioId: true,
         userId: true,
