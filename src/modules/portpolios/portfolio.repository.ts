@@ -25,7 +25,6 @@ export class PortfolioRepository extends CommonRepository<PortfolioResponseDto> 
           coverImage: portfolioData.coverImage,
           template: template,
           isPublic: portfolioData.isPublic,
-          greeting: portfolioData.greeting,
           introduction: introduction,
           aboutMe: aboutMe ? JSON.stringify(aboutMe) : undefined,
           userId,
@@ -88,7 +87,6 @@ export class PortfolioRepository extends CommonRepository<PortfolioResponseDto> 
       if (portfolioData.coverImage !== undefined) updateData.coverImage = portfolioData.coverImage;
       if (template !== undefined) updateData.template = template;
       if (portfolioData.isPublic !== undefined) updateData.isPublic = portfolioData.isPublic;
-      if (portfolioData.greeting !== undefined) updateData.greeting = portfolioData.greeting;
       if (introduction !== undefined) updateData.introduction = introduction;
       if (aboutMe !== undefined) updateData.aboutMe = JSON.stringify(aboutMe);
 
@@ -175,17 +173,30 @@ export class PortfolioRepository extends CommonRepository<PortfolioResponseDto> 
         coverImage: true,
         template: true,
         views: true,
+        likesCount: true,
         isPublic: true,
-        greeting: true,
         introduction: true,
         aboutMe: true,
         createdAt: true,
         updatedAt: true,
+        user: {
+          select: {
+            name: true,
+            job: true,
+            email: true,
+            phoneNumber: true,
+          },
+        },
       },
     });
 
     return portfolios.map((p: any) => ({
       ...p,
+      userName: p.user.name,
+      userJob: p.user.job,
+      userEmail: p.user.email,
+      userPhoneNumber: p.user.phoneNumber,
+      user: undefined,
       aboutMe: p.aboutMe ? JSON.parse(p.aboutMe) : undefined,
     }));
   }
@@ -195,6 +206,11 @@ export class PortfolioRepository extends CommonRepository<PortfolioResponseDto> 
     const portfolio = await this.model.findUnique({
       where: { portfolioId },
       include: {
+        user: {
+          include: {
+            licenses: true,
+          },
+        },
         portfolioStacks: {
           include: {
             stack: true,
@@ -214,6 +230,27 @@ export class PortfolioRepository extends CommonRepository<PortfolioResponseDto> 
             role: true,
             startDate: true,
             endDate: true,
+            projectContents: {
+              select: {
+                content: true,
+              },
+              take: 1,
+            },
+            projectStacks: {
+              select: {
+                stackId: true,
+                stackName: true,
+              },
+            },
+            links: {
+              where: {
+                linkSite: 'github',
+              },
+              select: {
+                url: true,
+              },
+              take: 1,
+            },
           },
         },
       },
@@ -224,13 +261,17 @@ export class PortfolioRepository extends CommonRepository<PortfolioResponseDto> 
     return {
       portfolioId: portfolio.portfolioId,
       userId: portfolio.userId,
+      userName: (portfolio as any).user.name ?? undefined,
+      userJob: (portfolio as any).user.job ?? undefined,
+      userEmail: (portfolio as any).user.email ?? undefined,
+      userPhoneNumber: (portfolio as any).user.phoneNumber ?? undefined,
       title: portfolio.title,
       thumbnail: portfolio.thumbnail ?? undefined,
       coverImage: (portfolio as any).coverImage ?? undefined,
       template: portfolio.template,
       views: portfolio.views,
+      likesCount: (portfolio as any).likesCount,
       isPublic: portfolio.isPublic,
-      greeting: portfolio.greeting ?? undefined,
       introduction: portfolio.introduction ?? undefined,
       aboutMe: (portfolio as any).aboutMe ? JSON.parse((portfolio as any).aboutMe) : undefined,
       createdAt: portfolio.createdAt,
@@ -248,7 +289,26 @@ export class PortfolioRepository extends CommonRepository<PortfolioResponseDto> 
         endDate: pc.career.endDate ?? undefined,
         description: pc.description ?? undefined,
       })),
-      projects: portfolio.projects,
+      licenses: (portfolio as any).user.licenses.map((license: any) => ({
+        licenseId: license.licenseId,
+        name: license.name,
+        gotDate: license.gotDate,
+        endDate: license.endDate ?? undefined,
+      })),
+      projects: portfolio.projects.map((project: any) => ({
+        projectId: project.projectId,
+        title: project.title,
+        thumbnail: project.thumbnail ?? undefined,
+        role: project.role ?? undefined,
+        startDate: project.startDate,
+        endDate: project.endDate ?? undefined,
+        description: project.projectContents?.[0]?.content ?? undefined,
+        stacks: project.projectStacks.map((ps: any) => ({
+          stackId: ps.stackId,
+          stackName: ps.stackName,
+        })),
+        githubUrl: project.links?.[0]?.url ?? undefined,
+      })),
     };
   }
 
@@ -258,6 +318,21 @@ export class PortfolioRepository extends CommonRepository<PortfolioResponseDto> 
       where: { 
         portfolioId,
         userId 
+      },
+      select: {
+        portfolioId: true,
+        userId: true,
+        title: true,
+        thumbnail: true,
+        coverImage: true,
+        template: true,
+        views: true,
+        likesCount: true,
+        isPublic: true,
+        introduction: true,
+        aboutMe: true,
+        createdAt: true,
+        updatedAt: true,
       },
     });
   }
@@ -280,17 +355,30 @@ export class PortfolioRepository extends CommonRepository<PortfolioResponseDto> 
         coverImage: true,
         template: true,
         views: true,
+        likesCount: true,
         isPublic: true,
-        greeting: true,
         introduction: true,
         aboutMe: true,
         createdAt: true,
         updatedAt: true,
+        user: {
+          select: {
+            name: true,
+            job: true,
+            email: true,
+            phoneNumber: true,
+          },
+        },
       },
     });
 
     return portfolios.map((p: any) => ({
       ...p,
+      userName: p.user.name,
+      userJob: p.user.job,
+      userEmail: p.user.email,
+      userPhoneNumber: p.user.phoneNumber,
+      user: undefined,
       aboutMe: p.aboutMe ? JSON.parse(p.aboutMe) : undefined,
     }));
   }
@@ -327,17 +415,30 @@ export class PortfolioRepository extends CommonRepository<PortfolioResponseDto> 
         coverImage: true,
         template: true,
         views: true,
+        likesCount: true,
         isPublic: true,
-        greeting: true,
         introduction: true,
         aboutMe: true,
         createdAt: true,
         updatedAt: true,
+        user: {
+          select: {
+            name: true,
+            job: true,
+            email: true,
+            phoneNumber: true,
+          },
+        },
       },
     });
 
     return portfolios.map((p: any) => ({
       ...p,
+      userName: p.user.name,
+      userJob: p.user.job,
+      userEmail: p.user.email,
+      userPhoneNumber: p.user.phoneNumber,
+      user: undefined,
       aboutMe: p.aboutMe ? JSON.parse(p.aboutMe) : undefined,
     }));
   }
@@ -352,6 +453,42 @@ export class PortfolioRepository extends CommonRepository<PortfolioResponseDto> 
         },
       },
     });
+  }
+
+  // 포트폴리오 필수 요소 확인
+  async checkRequirements(userId: number): Promise<{
+    career: boolean;
+    stack: boolean;
+    project: boolean;
+    job: boolean;
+  }> {
+    // 경력 확인
+    const careerCount = await this.prisma.career.count({
+      where: { userId },
+    });
+
+    // 기술스택 확인
+    const stackCount = await this.prisma.stack.count({
+      where: { userId },
+    });
+
+    // 프로젝트 확인
+    const projectCount = await this.prisma.project.count({
+      where: { userId },
+    });
+
+    // 직군 확인 (User의 job 필드)
+    const user = await this.prisma.user.findUnique({
+      where: { userId },
+      select: { job: true },
+    });
+
+    return {
+      career: careerCount > 0,
+      stack: stackCount > 0,
+      project: projectCount > 0,
+      job: !!user?.job,
+    };
   }
 
   // 포트폴리오 삭제 (portfolioId로) - Relations도 함께 삭제

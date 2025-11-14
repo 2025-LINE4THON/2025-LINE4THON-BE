@@ -1,5 +1,5 @@
 import { prisma } from '../../config/database';
-import { UpdateMyInfoRequest, UserInfoResponse } from './user.dto';
+import { UpdateMyInfoRequest, UserInfoResponse, CreateUserLinkRequest, UpdateUserLinkRequest, UserLinkResponse } from './user.dto';
 
 export class UserRepository {
   // 사용자 정보 조회 (by userId)
@@ -119,6 +119,58 @@ export class UserRepository {
             thumbnail: true,
           },
         },
+      },
+    });
+  }
+
+  // === UserLink CRUD ===
+  
+  // 내 링크 목록 조회
+  async findMyLinks(userId: number): Promise<UserLinkResponse[]> {
+    return prisma.userLink.findMany({
+      where: { userId },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  // 링크 생성
+  async createLink(userId: number, data: CreateUserLinkRequest): Promise<UserLinkResponse> {
+    return prisma.userLink.create({
+      data: {
+        userId,
+        linkType: data.linkType,
+        url: data.url,
+      },
+    });
+  }
+
+  // 링크 수정
+  async updateLink(
+    userLinkId: number,
+    data: UpdateUserLinkRequest
+  ): Promise<UserLinkResponse> {
+    return prisma.userLink.update({
+      where: { userLinkId },
+      data,
+    });
+  }
+
+  // 링크 삭제
+  async deleteLink(userLinkId: number): Promise<void> {
+    await prisma.userLink.delete({
+      where: { userLinkId },
+    });
+  }
+
+  // 링크 ID와 사용자 ID로 조회 (권한 확인용)
+  async findLinkByIdAndUserId(
+    userLinkId: number,
+    userId: number
+  ): Promise<UserLinkResponse | null> {
+    return prisma.userLink.findFirst({
+      where: {
+        userLinkId,
+        userId,
       },
     });
   }
