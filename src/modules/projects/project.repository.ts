@@ -33,7 +33,7 @@ export class ProjectRepository {
 
   async create(data: Prisma.ProjectCreateInput & { 
     projectTags?: { createMany?: { data: { userId: number; content: string }[] } },
-    projectStacks?: { createMany?: { data: { userId: number; stackId: number; stackName: string }[] } },
+    projectStacks?: { createMany?: { data: { userId: number; stackName: string; stackId?: number }[] } },
     projectContents?: { createMany?: { data: { userId: number; title: string; content: string }[] } },
     projectImages?: { createMany?: { data: { userId: number; imageURL: string }[] } },
     links?: { createMany?: { data: { userId: number; name: string; url: string; linkSite?: string | null }[] } },

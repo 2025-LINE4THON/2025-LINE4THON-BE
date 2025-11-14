@@ -194,6 +194,7 @@ model ProjectStack {
   projectId      Int
   userId         Int
   stackName      String
+  stackId        Int?     // Optional for backward compatibility
 
   project Project @relation(fields: [projectId], references: [projectId])
   user    User    @relation(fields: [userId], references: [userId])
