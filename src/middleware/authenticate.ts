@@ -50,3 +50,32 @@ export const authenticate = (
     }
   }
 };
+
+// 선택적 인증 미들웨어 (토큰이 있으면 검증, 없으면 통과)
+export const optionalAuthenticate = (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    // Authorization 헤더에서 토큰 가져오기
+    const authHeader = req.headers.authorization;
+    const token = authHeader?.startsWith('Bearer ') 
+      ? authHeader.substring(7) 
+      : null;
+
+    // 토큰이 없으면 그냥 통과
+    if (!token) {
+      return next();
+    }
+
+    // 토큰이 있으면 검증
+    const decoded = jwt.verify(token, env.JWT_SECRET) as JwtPayload;
+    req.user = decoded;
+    
+    next();
+  } catch (error) {
+    // 토큰이 유효하지 않아도 그냥 통과 (선택적)
+    next();
+  }
+};

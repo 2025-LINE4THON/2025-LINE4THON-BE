@@ -4,7 +4,7 @@ import path from 'path';
 import { PortfolioController } from './porpolio.controller';
 import { validate } from '../../middleware/validate';
 import { CreatePortfolioDto, UpdatePortfolioDto } from './portpolios.dto';
-import { authenticate } from '../../middleware/authenticate';
+import { authenticate, optionalAuthenticate } from '../../middleware/authenticate';
 
 const router = Router();
 const controller = new PortfolioController();
@@ -278,7 +278,7 @@ const upload = multer({
  *                   items:
  *                     $ref: '#/components/schemas/PortfolioResponse'
  */
-router.get('/portfolios/search', controller.searchPortfolios);
+router.get('/portfolios/search', optionalAuthenticate, controller.searchPortfolios);
 
 /**
  * @swagger
@@ -301,7 +301,7 @@ router.get('/portfolios/search', controller.searchPortfolios);
  *                   items:
  *                     $ref: '#/components/schemas/PortfolioResponse'
  */
-router.get('/portfolios/recommend', controller.getRecommended);
+router.get('/portfolios/recommend', optionalAuthenticate, controller.getRecommended);
 
 /**
  * @swagger
@@ -390,7 +390,7 @@ router.get('/users/:userId/portfolios', controller.getByUserId);
  *       404:
  *         description: 포트폴리오를 찾을 수 없음
  */
-router.get('/portfolios/:id', controller.getPortfolioDetail);
+router.get('/portfolios/:id', optionalAuthenticate, controller.getPortfolioDetail);
 
 /**
  * @swagger
