@@ -31,27 +31,50 @@ export class PortfolioRepository extends CommonRepository<PortfolioResponseDto> 
         },
       });
 
-      // 2. PortfolioStack 생성 (skills 배열에서)
+      // 2. PortfolioStack 생성 (skills 배열에서) - 스냅샷 데이터 포함
       if (skills && skills.length > 0) {
+        // Stack 정보 조회하여 스냅샷 생성
+        const stacks = await tx.stack.findMany({
+          where: { stackId: { in: skills.map(s => s.id) }, userId },
+        });
+        const stackMap = new Map(stacks.map(s => [s.stackId, s]));
+
         await tx.portfolioStack.createMany({
-          data: skills.map((skill) => ({
-            portfolioId: portfolio.portfolioId,
-            stackId: skill.id,
-            userId,
-            rank: skill.rank,
-          })),
+          data: skills.map((skill) => {
+            const stack = stackMap.get(skill.id);
+            return {
+              portfolioId: portfolio.portfolioId,
+              stackId: skill.id,
+              userId,
+              rank: skill.rank,
+              stackName: stack?.name || '',
+              stackLevel: stack?.level || null,
+            };
+          }),
         });
       }
 
-      // 3. PortfolioCareer 생성 (careers 배열에서)
+      // 3. PortfolioCareer 생성 (careers 배열에서) - 스냅샷 데이터 포함
       if (careers && careers.length > 0) {
+        // Career 정보 조회하여 스냅샷 생성
+        const careerList = await tx.career.findMany({
+          where: { careerId: { in: careers.map(c => c.id) }, userId },
+        });
+        const careerMap = new Map(careerList.map(c => [c.careerId, c]));
+
         await tx.portfolioCareer.createMany({
-          data: careers.map((career) => ({
-            portfolioId: portfolio.portfolioId,
-            careerId: career.id,
-            userId,
-            description: career.description,
-          })),
+          data: careers.map((career) => {
+            const careerData = careerMap.get(career.id);
+            return {
+              portfolioId: portfolio.portfolioId,
+              careerId: career.id,
+              userId,
+              description: career.description,
+              content: careerData?.content || '',
+              startDate: careerData?.startDate || new Date(),
+              endDate: careerData?.endDate || null,
+            };
+          }),
         });
       }
 
@@ -95,38 +118,61 @@ export class PortfolioRepository extends CommonRepository<PortfolioResponseDto> 
         data: updateData,
       });
 
-      // 2. PortfolioStack 업데이트 (기존 삭제 후 재생성)
+      // 2. PortfolioStack 업데이트 (기존 삭제 후 재생성) - 스냅샷 데이터 포함
       if (skills !== undefined) {
         await tx.portfolioStack.deleteMany({
           where: { portfolioId, userId },
         });
         
         if (skills.length > 0) {
+          // Stack 정보 조회하여 스냅샷 생성
+          const stacks = await tx.stack.findMany({
+            where: { stackId: { in: skills.map(s => s.id) }, userId },
+          });
+          const stackMap = new Map(stacks.map(s => [s.stackId, s]));
+
           await tx.portfolioStack.createMany({
-            data: skills.map((skill) => ({
-              portfolioId,
-              stackId: skill.id,
-              userId,
-              rank: skill.rank,
-            })),
+            data: skills.map((skill) => {
+              const stack = stackMap.get(skill.id);
+              return {
+                portfolioId,
+                stackId: skill.id,
+                userId,
+                rank: skill.rank,
+                stackName: stack?.name || '',
+                stackLevel: stack?.level || null,
+              };
+            }),
           });
         }
       }
 
-      // 3. PortfolioCareer 업데이트 (기존 삭제 후 재생성)
+      // 3. PortfolioCareer 업데이트 (기존 삭제 후 재생성) - 스냅샷 데이터 포함
       if (careers !== undefined) {
         await tx.portfolioCareer.deleteMany({
           where: { portfolioId, userId },
         });
         
         if (careers.length > 0) {
+          // Career 정보 조회하여 스냅샷 생성
+          const careerList = await tx.career.findMany({
+            where: { careerId: { in: careers.map(c => c.id) }, userId },
+          });
+          const careerMap = new Map(careerList.map(c => [c.careerId, c]));
+
           await tx.portfolioCareer.createMany({
-            data: careers.map((career) => ({
-              portfolioId,
-              careerId: career.id,
-              userId,
-              description: career.description,
-            })),
+            data: careers.map((career) => {
+              const careerData = careerMap.get(career.id);
+              return {
+                portfolioId,
+                careerId: career.id,
+                userId,
+                description: career.description,
+                content: careerData?.content || '',
+                startDate: careerData?.startDate || new Date(),
+                endDate: careerData?.endDate || null,
+              };
+            }),
           });
         }
       }
