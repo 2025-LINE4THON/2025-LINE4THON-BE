@@ -25,7 +25,6 @@ export class PortfolioRepository extends CommonRepository<PortfolioResponseDto> 
           coverImage: portfolioData.coverImage,
           template: template,
           isPublic: portfolioData.isPublic,
-          greeting: portfolioData.greeting,
           introduction: introduction,
           aboutMe: aboutMe ? JSON.stringify(aboutMe) : undefined,
           userId,
@@ -88,7 +87,6 @@ export class PortfolioRepository extends CommonRepository<PortfolioResponseDto> 
       if (portfolioData.coverImage !== undefined) updateData.coverImage = portfolioData.coverImage;
       if (template !== undefined) updateData.template = template;
       if (portfolioData.isPublic !== undefined) updateData.isPublic = portfolioData.isPublic;
-      if (portfolioData.greeting !== undefined) updateData.greeting = portfolioData.greeting;
       if (introduction !== undefined) updateData.introduction = introduction;
       if (aboutMe !== undefined) updateData.aboutMe = JSON.stringify(aboutMe);
 
@@ -177,16 +175,24 @@ export class PortfolioRepository extends CommonRepository<PortfolioResponseDto> 
         views: true,
         likesCount: true,
         isPublic: true,
-        greeting: true,
         introduction: true,
         aboutMe: true,
         createdAt: true,
         updatedAt: true,
+        user: {
+          select: {
+            name: true,
+            job: true,
+          },
+        },
       },
     });
 
     return portfolios.map((p: any) => ({
       ...p,
+      userName: p.user.name,
+      userJob: p.user.job,
+      user: undefined,
       aboutMe: p.aboutMe ? JSON.parse(p.aboutMe) : undefined,
     }));
   }
@@ -230,6 +236,8 @@ export class PortfolioRepository extends CommonRepository<PortfolioResponseDto> 
     return {
       portfolioId: portfolio.portfolioId,
       userId: portfolio.userId,
+      userName: (portfolio as any).user.name ?? undefined,
+      userJob: (portfolio as any).user.job ?? undefined,
       title: portfolio.title,
       thumbnail: portfolio.thumbnail ?? undefined,
       coverImage: (portfolio as any).coverImage ?? undefined,
@@ -237,7 +245,6 @@ export class PortfolioRepository extends CommonRepository<PortfolioResponseDto> 
       views: portfolio.views,
       likesCount: (portfolio as any).likesCount,
       isPublic: portfolio.isPublic,
-      greeting: portfolio.greeting ?? undefined,
       introduction: portfolio.introduction ?? undefined,
       aboutMe: (portfolio as any).aboutMe ? JSON.parse((portfolio as any).aboutMe) : undefined,
       createdAt: portfolio.createdAt,
@@ -282,7 +289,6 @@ export class PortfolioRepository extends CommonRepository<PortfolioResponseDto> 
         views: true,
         likesCount: true,
         isPublic: true,
-        greeting: true,
         introduction: true,
         aboutMe: true,
         createdAt: true,
@@ -311,16 +317,24 @@ export class PortfolioRepository extends CommonRepository<PortfolioResponseDto> 
         views: true,
         likesCount: true,
         isPublic: true,
-        greeting: true,
         introduction: true,
         aboutMe: true,
         createdAt: true,
         updatedAt: true,
+        user: {
+          select: {
+            name: true,
+            job: true,
+          },
+        },
       },
     });
 
     return portfolios.map((p: any) => ({
       ...p,
+      userName: p.user.name,
+      userJob: p.user.job,
+      user: undefined,
       aboutMe: p.aboutMe ? JSON.parse(p.aboutMe) : undefined,
     }));
   }
@@ -359,16 +373,24 @@ export class PortfolioRepository extends CommonRepository<PortfolioResponseDto> 
         views: true,
         likesCount: true,
         isPublic: true,
-        greeting: true,
         introduction: true,
         aboutMe: true,
         createdAt: true,
         updatedAt: true,
+        user: {
+          select: {
+            name: true,
+            job: true,
+          },
+        },
       },
     });
 
     return portfolios.map((p: any) => ({
       ...p,
+      userName: p.user.name,
+      userJob: p.user.job,
+      user: undefined,
       aboutMe: p.aboutMe ? JSON.parse(p.aboutMe) : undefined,
     }));
   }

@@ -30,7 +30,6 @@ export const CreatePortfolioDto = z.object({
   careers: z.array(CareerInputSchema).optional(), // API 명세: careers (id, description)
   projectIds: z.array(z.number()).optional(), // API 명세: projectIds
   title: z.string().min(1, '제목은 필수입니다'),
-  greeting: z.string().optional(), // API 명세: greeting
   introduction: z.string().optional(), // API 명세: Introduction (대문자 I)
   aboutMe: z.array(AboutMeSchema).optional(), // API 명세: aboutMe
   thumbnail: z.string().optional(), // API 명세: thumbnail
@@ -45,7 +44,6 @@ export const UpdatePortfolioDto = z.object({
   careers: z.array(CareerInputSchema).optional(),
   projectIds: z.array(z.number()).optional(),
   title: z.string().min(1, '제목은 필수입니다').optional(),
-  greeting: z.string().optional(),
   introduction: z.string().optional(),
   aboutMe: z.array(AboutMeSchema).optional(),
   thumbnail: z.string().optional(),
@@ -69,13 +67,14 @@ export type AboutMeInput = z.infer<typeof AboutMeSchema>;
 export interface PortfolioResponseDto {
   portfolioId: number;
   userId: number;
+  userName?: string;
+  userJob?: string;
   title: string;
   thumbnail?: string;
   template: 'IMAGE' | 'STANDARD';
   views: number;
   likesCount: number;
   isPublic: 'PUBLIC' | 'PRIVATE' | 'LINK';
-  greeting?: string;
   introduction?: string;
   aboutMe?: AboutMeInput[];
   coverImage?: string;
@@ -123,6 +122,8 @@ export interface ProjectDto {
 export interface PortfolioDetailResponseDto {
   portfolioId: number;
   userId: number;
+  userName?: string;
+  userJob?: string;
   title: string;
   thumbnail?: string;
   coverImage?: string;
@@ -130,7 +131,6 @@ export interface PortfolioDetailResponseDto {
   views: number;
   likesCount: number;
   isPublic: 'PUBLIC' | 'PRIVATE' | 'LINK';
-  greeting?: string;
   introduction?: string;
   aboutMe?: AboutMeInput[];
   createdAt: Date;

@@ -47,9 +47,6 @@ const controller = new PortfolioController();
  *         title:
  *           type: string
  *           description: 포트폴리오 제목
- *         greeting:
- *           type: string
- *           description: 인사말
  *         introduction:
  *           type: string
  *           description: 소개글
@@ -79,6 +76,10 @@ const controller = new PortfolioController();
  *           type: number
  *         userId:
  *           type: number
+ *         userName:
+ *           type: string
+ *         userJob:
+ *           type: string
  *         title:
  *           type: string
  *         thumbnail:
@@ -92,8 +93,6 @@ const controller = new PortfolioController();
  *         likesCount:
  *           type: number
  *         isPublic:
- *           type: string
- *         greeting:
  *           type: string
  *         introduction:
  *           type: string

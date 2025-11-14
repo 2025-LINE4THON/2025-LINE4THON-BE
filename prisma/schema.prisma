@@ -19,7 +19,7 @@ model User {
   name         String?
   username     String
   password     String
-  phoneNumber  Int?
+  phoneNumber  String?
   email        String?
   introduction String?
   job          String?
@@ -40,7 +40,7 @@ model User {
   links              Link[]
   portfolioLikes     PortfolioLike[]
 }
-}
+
 
 model License {
   licenseId     Int      @id @default(autoincrement())
