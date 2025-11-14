@@ -19,6 +19,11 @@ export class UserRepository {
 
     if (!user) return null;
 
+    // 프로젝트 개수 조회
+    const projectCount = await prisma.project.count({
+      where: { userId },
+    });
+
     // Prisma의 null을 undefined로 변환
     return {
       userId: user.userId,
@@ -28,6 +33,7 @@ export class UserRepository {
       phoneNumber: user.phoneNumber ?? undefined,
       introduction: user.introduction ?? undefined,
       job: user.job ?? undefined,
+      projectCount,
     };
   }
 

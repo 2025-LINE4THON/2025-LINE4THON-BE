@@ -43,4 +43,5 @@ export interface UserInfoResponse {
   phoneNumber?: string;
   introduction?: string;
   job?: string;
+  projectCount?: number;
 }

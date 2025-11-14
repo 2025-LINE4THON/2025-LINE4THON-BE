@@ -1,9 +1,9 @@
 import { Response } from 'express';
 
 interface SuccessResponse<T> {
-  status: 'success';
+  message: string;
   data: T;
-  message?: string;
+  statusCode: number;
 }
 
 interface ErrorResponse {
@@ -13,10 +13,10 @@ interface ErrorResponse {
 }
 
 // CommonController에서 사용하는 간단한 버전
-export const success = <T>(data: T, message?: string) => ({
-  status: 'success' as const,
+export const success = <T>(data: T, message: string = '성공', statusCode: number = 200) => ({
+  message,
   data,
-  ...(message && { message }),
+  statusCode,
 });
 
 export const fail = (message: string, error?: any) => ({
@@ -30,12 +30,12 @@ export const successResponse = <T>(
   res: Response,
   data: T,
   statusCode: number = 200,
-  message?: string,
+  message: string = '성공',
 ): Response<SuccessResponse<T>> => {
   return res.status(statusCode).json({
-    status: 'success',
+    message,
     data,
-    ...(message && { message }),
+    statusCode,
   });
 };
 
@@ -55,7 +55,7 @@ export const errorResponse = (
 export const createdResponse = <T>(
   res: Response,
   data: T,
-  message?: string,
+  message: string = '생성 성공',
 ): Response<SuccessResponse<T>> => {
   return successResponse(res, data, 201, message);
 };
