@@ -72,9 +72,11 @@ export class PortfolioService extends CommonService<PortfolioResponseDto> {
 
   // 포트폴리오 검색
   async searchPortfolios(params: PortfolioSearchParam): Promise<PortfolioResponseDto[]> {
+    // likes는 recent로 변환
+    const sort = params.sort === 'likes' ? 'views' : params.sort;
     return this.portfolioRepository.searchPortfolios(
       params.keyword,
-      params.sort,
+      sort,
       params.template,
       params.isPublic
     );
