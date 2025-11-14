@@ -10,7 +10,14 @@ export class ProjectRepository {
       orderBy: { projectId: 'desc' },
       include: {
         projectTags: true,
-        projectStacks: true,
+        projectStacks: {
+          select: {
+            projectStackId: true,
+            projectId: true,
+            userId: true,
+            stackName: true,
+          },
+        },
         projectContents: true,
         projectImages: true,
         links: true,
@@ -23,7 +30,14 @@ export class ProjectRepository {
       where: { projectId },
       include: {
         projectTags: true,
-        projectStacks: true,
+        projectStacks: {
+          select: {
+            projectStackId: true,
+            projectId: true,
+            userId: true,
+            stackName: true,
+          },
+        },
         projectContents: true,
         projectImages: true,
         links: true,
