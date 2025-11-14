@@ -96,7 +96,78 @@ projectRouter.get('/projects', authenticate, controller.list);
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/ProjectRequest'
+ *             type: object
+ *             required:
+ *               - title
+ *               - startDate
+ *             properties:
+ *               title:
+ *                 type: string
+ *               startDate:
+ *                 type: string
+ *                 format: date-time
+ *               endDate:
+ *                 type: string
+ *                 format: date-time
+ *               role:
+ *                 type: string
+ *               thumbnail:
+ *                 type: string
+ *               tags:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *               stacks:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *                   required:
+ *                     - stackName
+ *                   properties:
+ *                     stackName:
+ *                       type: string
+ *               contents:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *                   properties:
+ *                     title:
+ *                       type: string
+ *                     content:
+ *                       type: string
+ *               images:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *               links:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *                   properties:
+ *                     name:
+ *                       type: string
+ *                     url:
+ *                       type: string
+ *                     linkSite:
+ *                       type: string
+ *           example:
+ *             title: "포트폴리스 프로젝트"
+ *             startDate: "2025-03-01"
+ *             endDate: "2025-08-31"
+ *             role: "Backend Developer"
+ *             thumbnail: "https://example.com/thumbnail.jpg"
+ *             tags: ["React", "TypeScript"]
+ *             stacks:
+ *               - stackName: "Node.js"
+ *               - stackName: "Express"
+ *             contents:
+ *               - title: "프로젝트 소개"
+ *                 content: "포트폴리오 관리 플랫폼"
+ *             images: ["https://example.com/image1.jpg"]
+ *             links:
+ *               - name: "GitHub"
+ *                 url: "https://github.com/example"
+ *                 linkSite: "github"
  *     responses:
  *       201:
  *         description: 생성 성공
