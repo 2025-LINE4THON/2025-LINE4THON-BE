@@ -3,17 +3,20 @@ import { CommonController } from '../../common/common.controller';
 import { success, fail } from '../../common/common.response';
 import { PortfolioService } from './portpolio.service';
 import { PortfolioResponseDto, PortfolioSearchParam } from './portpolios.dto';
+import { UploadService } from '../uploads/upload.service';
 
 export class PortfolioController extends CommonController<PortfolioResponseDto> {
   private portfolioService: PortfolioService;
+  private uploadService: UploadService;
 
   constructor() {
     const portfolioService = new PortfolioService();
     super(portfolioService);
     this.portfolioService = portfolioService;
+    this.uploadService = new UploadService();
   }
 
-  // 포트폴리오 생성 (Relations 포함) - API 명세에 맞춘 응답
+  // 포트폴리오 생성 (Relations 포함) - API 명세에 맞춰 응답
   createPortfolio = async (req: Request, res: Response) => {
     try {
       const userId = req.user?.userId; // authenticate middleware에서 설정
@@ -21,7 +24,20 @@ export class PortfolioController extends CommonController<PortfolioResponseDto> 
         return res.status(401).json(fail('인증이 필요합니다'));
       }
 
-      const portfolio = await this.portfolioService.createPortfolio(userId, req.body);
+      const data = req.body;
+
+      // 이미지 파일 처리 (req.files를 통해 업로드된 경우)
+      const files = req.files as { [fieldname: string]: Express.Multer.File[] } | undefined;
+      
+      if (files?.thumbnail?.[0]) {
+        data.thumbnail = this.uploadService.getImageUrl(files.thumbnail[0].filename);
+      }
+      
+      if (files?.coverImage?.[0]) {
+        data.coverImage = this.uploadService.getImageUrl(files.coverImage[0].filename);
+      }
+
+      const portfolio = await this.portfolioService.createPortfolio(userId, data);
       
       // API 명세에 맞춘 응답 형식
       res.status(201).json({
@@ -45,10 +61,23 @@ export class PortfolioController extends CommonController<PortfolioResponseDto> 
       }
 
       const portfolioId = parseInt(req.params.id);
+      const data = req.body;
+
+      // 이미지 파일 처리
+      const files = req.files as { [fieldname: string]: Express.Multer.File[] } | undefined;
+      
+      if (files?.thumbnail?.[0]) {
+        data.thumbnail = this.uploadService.getImageUrl(files.thumbnail[0].filename);
+      }
+      
+      if (files?.coverImage?.[0]) {
+        data.coverImage = this.uploadService.getImageUrl(files.coverImage[0].filename);
+      }
+
       const portfolio = await this.portfolioService.updatePortfolio(
         portfolioId,
         userId,
-        req.body
+        data
       );
       res.json(success(portfolio, '포트폴리오가 수정되었습니다'));
     } catch (error: any) {

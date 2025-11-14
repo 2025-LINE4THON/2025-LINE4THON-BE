@@ -243,13 +243,10 @@ export class PortfolioRepository extends CommonRepository<PortfolioResponseDto> 
               },
             },
             links: {
-              where: {
-                linkSite: 'github',
-              },
               select: {
                 url: true,
+                linkSite: true,
               },
-              take: 1,
             },
           },
         },
@@ -307,7 +304,7 @@ export class PortfolioRepository extends CommonRepository<PortfolioResponseDto> 
           stackId: ps.stackId,
           stackName: ps.stackName,
         })),
-        githubUrl: project.links?.[0]?.url ?? undefined,
+        githubUrl: project.links?.find((link: any) => link.url?.includes('github.com'))?.url ?? undefined,
       })),
     };
   }
