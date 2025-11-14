@@ -214,7 +214,8 @@ router.get('/me/portfolios', authenticate, controller.getMyPortfolios);
  *                         type: string
  *                         format: date-time
  *   post:
- *     summary: 링크 생성
+ *     summary: 링크 일괄 등록/수정
+ *     description: 기존 링크를 모두 삭제하고 새로운 링크들로 교체합니다
  *     tags: [User]
  *     security:
  *       - bearerAuth: []
@@ -225,15 +226,22 @@ router.get('/me/portfolios', authenticate, controller.getMyPortfolios);
  *           schema:
  *             type: object
  *             required:
- *               - linkType
- *               - url
+ *               - links
  *             properties:
- *               linkType:
- *                 type: string
- *                 description: github, blog, notion, instagram, youtube, etc
- *               url:
- *                 type: string
- *                 format: uri
+ *               links:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *                   required:
+ *                     - linkType
+ *                     - url
+ *                   properties:
+ *                     linkType:
+ *                       type: string
+ *                       description: github, blog, notion, instagram, youtube, etc
+ *                     url:
+ *                       type: string
+ *                       format: uri
  *     responses:
  *       201:
  *         description: 생성 성공

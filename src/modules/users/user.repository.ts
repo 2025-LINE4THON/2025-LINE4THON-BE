@@ -24,6 +24,12 @@ export class UserRepository {
       where: { userId },
     });
 
+    // 링크 목록 조회
+    const links = await prisma.userLink.findMany({
+      where: { userId },
+      orderBy: { createdAt: 'desc' },
+    });
+
     // Prisma의 null을 undefined로 변환
     return {
       userId: user.userId,
@@ -34,6 +40,7 @@ export class UserRepository {
       introduction: user.introduction ?? undefined,
       job: user.job ?? undefined,
       projectCount,
+      links,
     };
   }
 
@@ -179,5 +186,31 @@ export class UserRepository {
         userId,
       },
     });
+  }
+
+  // 링크 일괄 업데이트 (기존 삭제 후 새로 생성)
+  async bulkUpdateLinks(
+    userId: number,
+    links: { linkType: string; url: string }[]
+  ): Promise<UserLinkResponse[]> {
+    // 트랜잭션으로 기존 링크 삭제 후 새로 생성
+    await prisma.userLink.deleteMany({
+      where: { userId },
+    });
+
+    if (links.length === 0) {
+      return [];
+    }
+
+    // createMany는 리턴이 없으므로 다시 조회
+    await prisma.userLink.createMany({
+      data: links.map((link) => ({
+        userId,
+        linkType: link.linkType,
+        url: link.url,
+      })),
+    });
+
+    return this.findMyLinks(userId);
   }
 }

@@ -64,9 +64,9 @@ export class UserService {
     return this.userRepository.findMyLinks(userId);
   }
 
-  // 링크 생성
+  // 링크 생성 (배열)
   async createLink(userId: number, data: CreateUserLinkRequest) {
-    return this.userRepository.createLink(userId, data);
+    return this.userRepository.bulkUpdateLinks(userId, data.links);
   }
 
   // 링크 수정
