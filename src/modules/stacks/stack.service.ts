@@ -17,18 +17,8 @@ export class StackService {
   }
 
   async create(userId: number, body: unknown) {
-    const data = createStackSchema.parse(body);
-
-    // (선택) 같은 유저의 중복 이름 방지
-    if (await this.repo.existsByName(userId, data.name)) {
-      throw new AppError('이미 존재하는 스택 이름입니다.', 400);
-    }
-
-    return this.repo.create({
-      user: { connect: { userId } },
-      name: data.name,
-      level: data.level ?? null,
-    });
+    const { stacks } = createStackSchema.parse(body);
+    return this.repo.bulkUpdate(userId, stacks);
   }
 
   async update(userId: number, stackId: number, body: unknown) {

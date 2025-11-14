@@ -52,4 +52,25 @@ export class CareerRepository {
       where: { careerId },
     });
   }
+
+  // 기존 경력 모두 삭제 후 새로 생성 (배열 일괄 처리)
+  async bulkUpdate(userId: number, careers: Array<{ content: string; startDate: Date; endDate?: Date | null }>) {
+    // 1. 기존 경력 모두 삭제
+    await this.model.deleteMany({ where: { userId } });
+
+    // 2. 새로운 경력 일괄 생성
+    if (careers.length > 0) {
+      await this.model.createMany({
+        data: careers.map(c => ({
+          userId,
+          content: c.content,
+          startDate: c.startDate,
+          endDate: c.endDate ?? null,
+        })),
+      });
+    }
+
+    // 3. 생성된 경력 목록 반환
+    return this.findAllByUser(userId);
+  }
 }

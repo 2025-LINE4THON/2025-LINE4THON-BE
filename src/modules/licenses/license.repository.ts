@@ -34,4 +34,25 @@ export class LicenseRepository {
     });
     return !!l && l.userId === userId;
   }
+
+  // 기존 자격증 모두 삭제 후 새로 생성 (배열 일괄 처리)
+  async bulkUpdate(userId: number, licenses: Array<{ name: string; gotDate: Date; endDate?: Date | null }>) {
+    // 1. 기존 자격증 모두 삭제
+    await this.model.deleteMany({ where: { userId } });
+
+    // 2. 새로운 자격증 일괄 생성
+    if (licenses.length > 0) {
+      await this.model.createMany({
+        data: licenses.map(l => ({
+          userId,
+          name: l.name,
+          gotDate: l.gotDate,
+          endDate: l.endDate ?? null,
+        })),
+      });
+    }
+
+    // 3. 생성된 자격증 목록 반환
+    return this.findAllByUser(userId);
+  }
 }

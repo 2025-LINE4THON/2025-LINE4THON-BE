@@ -77,7 +77,8 @@ careerRouter.get('/careers', authenticate, controller.list);
  * @swagger
  * /api/careers:
  *   post:
- *     summary: 경력 등록
+ *     summary: 경력 일괄 등록/수정 (배열)
+ *     description: 기존 경력을 모두 삭제하고 새로운 경력들로 교체합니다. 빈 배열을 보내면 모든 경력이 삭제됩니다.
  *     tags: [Career]
  *     security:
  *       - bearerAuth: []
@@ -86,7 +87,22 @@ careerRouter.get('/careers', authenticate, controller.list);
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/CareerRequest'
+ *             type: object
+ *             required:
+ *               - careers
+ *             properties:
+ *               careers:
+ *                 type: array
+ *                 items:
+ *                   $ref: '#/components/schemas/CareerRequest'
+ *           example:
+ *             careers:
+ *               - content: "멋쟁이사자처럼 대학 13기"
+ *                 startDate: "2025-03-01"
+ *                 endDate: "2025-12-31"
+ *               - content: "네이버 인턴"
+ *                 startDate: "2024-07-01"
+ *                 endDate: null
  *     responses:
  *       201:
  *         description: 등록 성공
