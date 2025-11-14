@@ -10,6 +10,7 @@ interface EnvConfig {
   JWT_REFRESH_EXPIRES_IN: string;
   CORS_ORIGIN: string;
   COOKIE_SECRET: string;
+  SERVER_URL: string;
 }
 
 const getEnv = (key: string, defaultValue?: string): string => {
@@ -30,4 +31,5 @@ export const env: EnvConfig = {
   JWT_REFRESH_EXPIRES_IN: getEnv('JWT_REFRESH_EXPIRES_IN', '7d'),
   CORS_ORIGIN: getEnv('CORS_ORIGIN', 'http://localhost:5173'),
   COOKIE_SECRET: getEnv('COOKIE_SECRET'),
+  SERVER_URL: getEnv('SERVER_URL', `http://localhost:${parseInt(getEnv('PORT', '3000'), 10)}`),
 };
