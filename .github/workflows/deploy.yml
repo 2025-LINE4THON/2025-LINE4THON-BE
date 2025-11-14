@@ -34,7 +34,6 @@ jobs:
         run: |
           pnpm config set enable-pre-post-scripts true
           pnpm install --frozen-lockfile
-          DATABASE_URL=file:./dev.db pnpm exec prisma migrate deploy
           DATABASE_URL=file:./dev.db pnpm exec prisma generate
           pnpm run build
 
