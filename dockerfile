@@ -32,7 +32,7 @@ RUN corepack enable
 COPY package.json pnpm-lock.yaml* ./
 RUN pnpm install --frozen-lockfile --prod
 
-# Prisma 스키마 복사 (런타임에 필요)
+# Prisma 스키마 및 마이그레이션 복사 (런타임에 필요)
 COPY --from=builder /app/prisma ./prisma
 
 # Prisma Client 복사 (pnpm 구조)
@@ -44,17 +44,12 @@ COPY --from=builder /app/dist ./dist
 ENV NODE_ENV=production
 EXPOSE 3000
 
-# 시작 스크립트 생성 (안전한 마이그레이션)
+# 시작 스크립트 생성 (마이그레이션 적용)
 RUN echo '#!/bin/sh' > /app/start.sh && \
     echo 'set -e' >> /app/start.sh && \
-    echo '# DB 파일 존재 확인' >> /app/start.sh && \
-    echo 'if [ -f /app/data/dev.db ]; then' >> /app/start.sh && \
-    echo '  echo "Existing DB found. Syncing schema..."' >> /app/start.sh && \
-    echo '  npx prisma db push --skip-generate || true' >> /app/start.sh && \
-    echo 'else' >> /app/start.sh && \
-    echo '  echo "No existing DB. Creating new database..."' >> /app/start.sh && \
-    echo '  npx prisma db push --skip-generate' >> /app/start.sh && \
-    echo 'fi' >> /app/start.sh && \
+    echo 'echo "Applying database migrations..."' >> /app/start.sh && \
+    echo 'npx prisma migrate deploy' >> /app/start.sh && \
+    echo 'echo "Starting server..."' >> /app/start.sh && \
     echo 'node dist/index.js' >> /app/start.sh && \
     chmod +x /app/start.sh
 
