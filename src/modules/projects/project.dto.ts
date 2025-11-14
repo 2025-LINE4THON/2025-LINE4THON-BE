@@ -9,6 +9,7 @@ export const createProjectSchema = z.object({
   // 선택 관계들
   tags: z.array(z.string()).optional(),
   stacks: z.array(z.object({
+    stackId: z.number(), 
     stackName: z.string().min(1),
   })).optional(),
   contents: z.array(z.object({
