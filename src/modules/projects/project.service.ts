@@ -28,8 +28,16 @@ export class ProjectService {
         ? { createMany: { data: data.tags.map((t) => ({ userId, content: t })) } }
         : undefined,
       projectStacks: data.stacks?.length
-        ? { createMany: { data: data.stacks.map((s) => ({ userId, stackName: s.stackName })) } }
-        : undefined,
+        ? {
+      createMany: {
+        data: data.stacks.map((s) => ({
+          userId,              
+          stackId: s.stackId,  
+          stackName: s.stackName,
+        })),
+      },
+    }
+  : undefined,
       projectContents: data.contents?.length
         ? { createMany: { data: data.contents.map((c) => ({ userId, title: c.title, content: c.content })) } }
         : undefined,
