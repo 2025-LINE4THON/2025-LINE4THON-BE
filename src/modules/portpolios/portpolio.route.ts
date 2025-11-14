@@ -115,6 +115,94 @@ const controller = new PortfolioController();
  *         updatedAt:
  *           type: string
  *           format: date-time
+ *         isLiked:
+ *           type: boolean
+ *           description: 현재 사용자의 좋아요 여부
+ *     PortfolioDetail:
+ *       allOf:
+ *         - $ref: '#/components/schemas/PortfolioResponse'
+ *         - type: object
+ *           properties:
+ *             stacks:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   stackId:
+ *                     type: number
+ *                   name:
+ *                     type: string
+ *                   level:
+ *                     type: string
+ *                   rank:
+ *                     type: number
+ *             careers:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   careerId:
+ *                     type: number
+ *                   content:
+ *                     type: string
+ *                   startDate:
+ *                     type: string
+ *                     format: date-time
+ *                   endDate:
+ *                     type: string
+ *                     format: date-time
+ *                   description:
+ *                     type: string
+ *             licenses:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   licenseId:
+ *                     type: number
+ *                   name:
+ *                     type: string
+ *                   gotDate:
+ *                     type: string
+ *                     format: date-time
+ *                   endDate:
+ *                     type: string
+ *                     format: date-time
+ *             projects:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   projectId:
+ *                     type: number
+ *                   title:
+ *                     type: string
+ *                   thumbnail:
+ *                     type: string
+ *                   role:
+ *                     type: string
+ *                   startDate:
+ *                     type: string
+ *                     format: date-time
+ *                   endDate:
+ *                     type: string
+ *                     format: date-time
+ *                   description:
+ *                     type: string
+ *                     description: 프로젝트 상세 설명
+ *                   stacks:
+ *                     type: array
+ *                     description: 프로젝트에 사용된 기술 스택
+ *                     items:
+ *                       type: object
+ *                       properties:
+ *                         stackId:
+ *                           type: number
+ *                         stackName:
+ *                           type: string
+ *                   githubUrl:
+ *                     type: string
+ *                     description: 깃허브 링크
  */
 
 /**
@@ -220,6 +308,15 @@ router.get('/users/:userId/portfolios', controller.getByUserId);
  *     responses:
  *       200:
  *         description: 조회 성공
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                 data:
+ *                   $ref: '#/components/schemas/PortfolioDetail'
  *       404:
  *         description: 포트폴리오를 찾을 수 없음
  */
