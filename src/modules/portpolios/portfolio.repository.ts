@@ -448,7 +448,7 @@ export class PortfolioRepository extends CommonRepository<PortfolioResponseDto> 
               }
             : {},
           template ? { template } : {},
-          isPublic ? { isPublic } : {},
+          { isPublic: 'PUBLIC' }, // 공개 포트폴리오만 검색
         ],
       },
       orderBy,

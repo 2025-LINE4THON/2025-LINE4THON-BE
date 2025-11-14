@@ -98,7 +98,7 @@ export class UserRepository {
 
   // 내 프로젝트 목록 조회
   async findMyProjects(userId: number) {
-    return prisma.project.findMany({
+    const projects = await prisma.project.findMany({
       where: { userId },
       orderBy: { startDate: 'desc' },
       include: {
@@ -107,6 +107,14 @@ export class UserRepository {
         links: true,
       },
     });
+    // projectStacks의 stackId를 옵셔널 number로 변환(undefined -> null)
+    return projects.map(project => ({
+      ...project,
+      projectStacks: project.projectStacks.map(stack => ({
+        ...stack,
+        stackId: typeof stack.stackId === 'number' ? stack.stackId : null,
+      })),
+    }));
   }
 
   // 내 포트폴리오 목록 조회
