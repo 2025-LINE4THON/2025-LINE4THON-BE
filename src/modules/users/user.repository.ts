@@ -146,17 +146,6 @@ export class UserRepository {
     });
   }
 
-  // 링크 생성
-  async createLink(userId: number, data: CreateUserLinkRequest): Promise<UserLinkResponse> {
-    return prisma.userLink.create({
-      data: {
-        userId,
-        linkType: data.linkType,
-        url: data.url,
-      },
-    });
-  }
-
   // 링크 수정
   async updateLink(
     userLinkId: number,
