@@ -215,14 +215,13 @@ model ProjectContent {
 }
 
 model ProjectImage {
-  projectId Int
-  userId    Int
-  imageURL  String
+  projectImageId Int      @id @default(autoincrement())
+  projectId      Int
+  userId         Int
+  imageURL       String
 
   project Project @relation(fields: [projectId], references: [projectId])
   user    User    @relation(fields: [userId], references: [userId])
-
-  @@id([projectId, userId])
 }
 
 model Link {
