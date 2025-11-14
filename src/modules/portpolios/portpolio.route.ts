@@ -430,7 +430,6 @@ router.get('/portfolios/:id', controller.getPortfolioDetail);
  */
 router.post('/portfolios', 
   authenticate, 
-  upload.fields([{ name: 'thumbnail', maxCount: 1 }, { name: 'coverImage', maxCount: 1 }]),
   controller.createPortfolio
 );
 
@@ -462,7 +461,6 @@ router.post('/portfolios',
  */
 router.patch('/portfolios/:id', 
   authenticate, 
-  upload.fields([{ name: 'thumbnail', maxCount: 1 }, { name: 'coverImage', maxCount: 1 }]),
   controller.updatePortfolio
 );
 

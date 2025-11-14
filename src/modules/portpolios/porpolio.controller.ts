@@ -26,6 +26,20 @@ export class PortfolioController extends CommonController<PortfolioResponseDto> 
 
       const data = req.body;
 
+      // FormData로 전송된 JSON 문자열 파싱
+      if (typeof data.skills === 'string') {
+        data.skills = JSON.parse(data.skills);
+      }
+      if (typeof data.careers === 'string') {
+        data.careers = JSON.parse(data.careers);
+      }
+      if (typeof data.projectIds === 'string') {
+        data.projectIds = JSON.parse(data.projectIds);
+      }
+      if (typeof data.aboutMe === 'string') {
+        data.aboutMe = JSON.parse(data.aboutMe);
+      }
+
       // 이미지 파일 처리 (req.files를 통해 업로드된 경우)
       const files = req.files as { [fieldname: string]: Express.Multer.File[] } | undefined;
       
@@ -62,17 +76,6 @@ export class PortfolioController extends CommonController<PortfolioResponseDto> 
 
       const portfolioId = parseInt(req.params.id);
       const data = req.body;
-
-      // 이미지 파일 처리
-      const files = req.files as { [fieldname: string]: Express.Multer.File[] } | undefined;
-      
-      if (files?.thumbnail?.[0]) {
-        data.thumbnail = this.uploadService.getImageUrl(files.thumbnail[0].filename);
-      }
-      
-      if (files?.coverImage?.[0]) {
-        data.coverImage = this.uploadService.getImageUrl(files.coverImage[0].filename);
-      }
 
       const portfolio = await this.portfolioService.updatePortfolio(
         portfolioId,
