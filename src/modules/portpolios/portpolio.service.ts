@@ -71,8 +71,19 @@ export class PortfolioService extends CommonService<PortfolioResponseDto> {
   }
 
   // 추천 포트폴리오 조회
-  async getRecommendedPortfolios(): Promise<PortfolioResponseDto[]> {
-    return this.portfolioRepository.findRecommended();
+  async getRecommendedPortfolios(userId?: number): Promise<PortfolioResponseDto[]> {
+    const portfolios = await this.portfolioRepository.findRecommended();
+    
+    // 좋아요 여부 확인 (로그인한 경우)
+    if (userId) {
+      await Promise.all(
+        portfolios.map(async (portfolio) => {
+          portfolio.isLiked = await this.portfolioRepository.isLiked(userId, portfolio.portfolioId);
+        })
+      );
+    }
+    
+    return portfolios;
   }
 
   // 포트폴리오 검색

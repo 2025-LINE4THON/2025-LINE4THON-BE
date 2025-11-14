@@ -141,7 +141,8 @@ export class PortfolioController extends CommonController<PortfolioResponseDto> 
   // 추천 포트폴리오 조회
   getRecommended = async (req: Request, res: Response) => {
     try {
-      const portfolios = await this.portfolioService.getRecommendedPortfolios();
+      const userId = req.user?.userId; // 로그인한 경우에만 존재
+      const portfolios = await this.portfolioService.getRecommendedPortfolios(userId);
       res.json(success(portfolios, '추천 포트폴리오 조회 성공'));
     } catch (error: any) {
       res.status(500).json(fail(error.message));
