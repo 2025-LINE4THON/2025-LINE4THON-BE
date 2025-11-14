@@ -16,6 +16,7 @@ import { careerRouter } from './modules/careers/career.routes';
 import { licenseRouter } from './modules/licenses/license.routes';
 import { stackRouter } from './modules/stacks/stack.routes';
 import userRouter from './modules/users/user.routes';
+import uploadRouter from './modules/uploads/upload.routes';
 
 const app = express();
 
@@ -61,6 +62,9 @@ if (env.NODE_ENV === 'development') {
 // Compression
 app.use(compression());
 
+// Static files - uploads folder
+app.use('/uploads', express.static('uploads'));
+
 // Health check
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
@@ -75,6 +79,7 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
 // API routes
 app.use('/api/auth', authRouter);
 app.use('/api/users', userRouter);
+app.use('/api', uploadRouter);
 app.use('/api', portfolioRouter);
 app.use('/api', projectRouter);
 app.use('/api', careerRouter);

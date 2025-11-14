@@ -27,7 +27,7 @@ export interface UserLinkResponse {
 export const UpdateMyInfoDto = z.object({
   name: z.string().min(2, '이름은 최소 2자 이상이어야 합니다.').optional(),
   email: z.string().email('유효한 이메일 주소를 입력해주세요.').optional(),
-  phoneNumber: z.number().optional(),
+  phoneNumber: z.string().optional(),
   introduction: z.string().optional(),
   job: z.string().optional(),
 });
@@ -40,7 +40,7 @@ export interface UserInfoResponse {
   username: string;
   name?: string;
   email?: string;
-  phoneNumber?: number;
+  phoneNumber?: string;
   introduction?: string;
   job?: string;
 }

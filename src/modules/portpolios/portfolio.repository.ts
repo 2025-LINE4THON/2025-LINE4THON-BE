@@ -491,6 +491,67 @@ export class PortfolioRepository extends CommonRepository<PortfolioResponseDto> 
     };
   }
 
+  // 포트폴리오 좋아요 여부 확인
+  async isLiked(userId: number, portfolioId: number): Promise<boolean> {
+    const like = await this.prisma.portfolioLike.findUnique({
+      where: {
+        userId_portfolioId: {
+          userId,
+          portfolioId,
+        },
+      },
+    });
+    return !!like;
+  }
+
+  // 포트폴리오 좋아요
+  async likePortfolio(userId: number, portfolioId: number): Promise<void> {
+    await this.prisma.$transaction(async (tx) => {
+      // 좋아요 추가
+      await tx.portfolioLike.create({
+        data: {
+          userId,
+          portfolioId,
+        },
+      });
+
+      // likesCount 증가
+      await tx.portfolio.update({
+        where: { portfolioId },
+        data: {
+          likesCount: {
+            increment: 1,
+          },
+        },
+      });
+    });
+  }
+
+  // 포트폴리오 좋아요 취소
+  async unlikePortfolio(userId: number, portfolioId: number): Promise<void> {
+    await this.prisma.$transaction(async (tx) => {
+      // 좋아요 삭제
+      await tx.portfolioLike.delete({
+        where: {
+          userId_portfolioId: {
+            userId,
+            portfolioId,
+          },
+        },
+      });
+
+      // likesCount 감소
+      await tx.portfolio.update({
+        where: { portfolioId },
+        data: {
+          likesCount: {
+            decrement: 1,
+          },
+        },
+      });
+    });
+  }
+
   // 포트폴리오 삭제 (portfolioId로) - Relations도 함께 삭제
   async deletePortfolio(portfolioId: number): Promise<void> {
     await this.prisma.$transaction(async (tx) => {
