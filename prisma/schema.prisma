@@ -39,6 +39,7 @@ model User {
   projectImages      ProjectImage[]
   links              Link[]
   portfolioLikes     PortfolioLike[]
+  userLinks          UserLink[]
 }
 
 
@@ -234,4 +235,14 @@ model Link {
 
   project Project @relation(fields: [projectId], references: [projectId])
   user    User    @relation(fields: [userId], references: [userId])
+}
+
+model UserLink {
+  userLinkId Int      @id @default(autoincrement())
+  userId     Int
+  linkType   String   // github, blog, notion, instagram, youtube, etc
+  url        String
+  createdAt  DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [userId])
 }

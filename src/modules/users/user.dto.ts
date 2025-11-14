@@ -1,5 +1,28 @@
 import { z } from 'zod';
 
+// UserLink 생성/수정 DTO
+export const CreateUserLinkDto = z.object({
+  linkType: z.string().min(1, '링크 타입은 필수입니다'), // github, blog, notion, instagram, youtube, etc
+  url: z.string().url('유효한 URL을 입력해주세요'),
+});
+
+export const UpdateUserLinkDto = z.object({
+  linkType: z.string().min(1, '링크 타입은 필수입니다').optional(),
+  url: z.string().url('유효한 URL을 입력해주세요').optional(),
+});
+
+export type CreateUserLinkRequest = z.infer<typeof CreateUserLinkDto>;
+export type UpdateUserLinkRequest = z.infer<typeof UpdateUserLinkDto>;
+
+// UserLink 응답 DTO
+export interface UserLinkResponse {
+  userLinkId: number;
+  userId: number;
+  linkType: string;
+  url: string;
+  createdAt: Date;
+}
+
 // 내 정보 수정 DTO
 export const UpdateMyInfoDto = z.object({
   name: z.string().min(2, '이름은 최소 2자 이상이어야 합니다.').optional(),

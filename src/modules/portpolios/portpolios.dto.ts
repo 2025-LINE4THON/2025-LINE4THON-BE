@@ -69,6 +69,8 @@ export interface PortfolioResponseDto {
   userId: number;
   userName?: string;
   userJob?: string;
+  userEmail?: string;
+  userPhoneNumber?: string;
   title: string;
   thumbnail?: string;
   template: 'IMAGE' | 'STANDARD';
@@ -108,7 +110,7 @@ export interface LicenseDto {
   endDate?: Date;
 }
 
-// Project 간단 응답 DTO
+// Project 상세 응답 DTO
 export interface ProjectDto {
   projectId: number;
   title: string;
@@ -116,6 +118,15 @@ export interface ProjectDto {
   role?: string;
   startDate: Date;
   endDate?: Date;
+  description?: string; // 프로젝트 상세 설명 (ProjectContent의 content)
+  stacks: ProjectStackDto[]; // 사용된 기술 스택
+  githubUrl?: string; // 깃허브 링크 (Link 중 github인 것)
+}
+
+// ProjectStack 응답 DTO
+export interface ProjectStackDto {
+  stackId: number;
+  stackName: string;
 }
 
 // Portfolio 상세 응답 DTO
@@ -124,6 +135,8 @@ export interface PortfolioDetailResponseDto {
   userId: number;
   userName?: string;
   userJob?: string;
+  userEmail?: string;
+  userPhoneNumber?: string;
   title: string;
   thumbnail?: string;
   coverImage?: string;

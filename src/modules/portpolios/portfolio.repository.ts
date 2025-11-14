@@ -183,6 +183,8 @@ export class PortfolioRepository extends CommonRepository<PortfolioResponseDto> 
           select: {
             name: true,
             job: true,
+            email: true,
+            phoneNumber: true,
           },
         },
       },
@@ -192,6 +194,8 @@ export class PortfolioRepository extends CommonRepository<PortfolioResponseDto> 
       ...p,
       userName: p.user.name,
       userJob: p.user.job,
+      userEmail: p.user.email,
+      userPhoneNumber: p.user.phoneNumber,
       user: undefined,
       aboutMe: p.aboutMe ? JSON.parse(p.aboutMe) : undefined,
     }));
@@ -226,6 +230,27 @@ export class PortfolioRepository extends CommonRepository<PortfolioResponseDto> 
             role: true,
             startDate: true,
             endDate: true,
+            projectContents: {
+              select: {
+                content: true,
+              },
+              take: 1,
+            },
+            projectStacks: {
+              select: {
+                stackId: true,
+                stackName: true,
+              },
+            },
+            links: {
+              where: {
+                linkSite: 'github',
+              },
+              select: {
+                url: true,
+              },
+              take: 1,
+            },
           },
         },
       },
@@ -238,6 +263,8 @@ export class PortfolioRepository extends CommonRepository<PortfolioResponseDto> 
       userId: portfolio.userId,
       userName: (portfolio as any).user.name ?? undefined,
       userJob: (portfolio as any).user.job ?? undefined,
+      userEmail: (portfolio as any).user.email ?? undefined,
+      userPhoneNumber: (portfolio as any).user.phoneNumber ?? undefined,
       title: portfolio.title,
       thumbnail: portfolio.thumbnail ?? undefined,
       coverImage: (portfolio as any).coverImage ?? undefined,
@@ -268,7 +295,20 @@ export class PortfolioRepository extends CommonRepository<PortfolioResponseDto> 
         gotDate: license.gotDate,
         endDate: license.endDate ?? undefined,
       })),
-      projects: portfolio.projects,
+      projects: portfolio.projects.map((project: any) => ({
+        projectId: project.projectId,
+        title: project.title,
+        thumbnail: project.thumbnail ?? undefined,
+        role: project.role ?? undefined,
+        startDate: project.startDate,
+        endDate: project.endDate ?? undefined,
+        description: project.projectContents?.[0]?.content ?? undefined,
+        stacks: project.projectStacks.map((ps: any) => ({
+          stackId: ps.stackId,
+          stackName: ps.stackName,
+        })),
+        githubUrl: project.links?.[0]?.url ?? undefined,
+      })),
     };
   }
 
@@ -325,6 +365,8 @@ export class PortfolioRepository extends CommonRepository<PortfolioResponseDto> 
           select: {
             name: true,
             job: true,
+            email: true,
+            phoneNumber: true,
           },
         },
       },
@@ -334,6 +376,8 @@ export class PortfolioRepository extends CommonRepository<PortfolioResponseDto> 
       ...p,
       userName: p.user.name,
       userJob: p.user.job,
+      userEmail: p.user.email,
+      userPhoneNumber: p.user.phoneNumber,
       user: undefined,
       aboutMe: p.aboutMe ? JSON.parse(p.aboutMe) : undefined,
     }));
@@ -381,6 +425,8 @@ export class PortfolioRepository extends CommonRepository<PortfolioResponseDto> 
           select: {
             name: true,
             job: true,
+            email: true,
+            phoneNumber: true,
           },
         },
       },
@@ -390,6 +436,8 @@ export class PortfolioRepository extends CommonRepository<PortfolioResponseDto> 
       ...p,
       userName: p.user.name,
       userJob: p.user.job,
+      userEmail: p.user.email,
+      userPhoneNumber: p.user.phoneNumber,
       user: undefined,
       aboutMe: p.aboutMe ? JSON.parse(p.aboutMe) : undefined,
     }));

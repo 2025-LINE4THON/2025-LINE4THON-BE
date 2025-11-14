@@ -1,5 +1,5 @@
 import { UserRepository } from './user.repository';
-import { UpdateMyInfoRequest } from './user.dto';
+import { UpdateMyInfoRequest, CreateUserLinkRequest, UpdateUserLinkRequest } from './user.dto';
 import { AppError } from '../../middleware/errorHandler';
 
 export class UserService {
@@ -55,5 +55,39 @@ export class UserService {
   // 내 포트폴리오 목록 조회
   async getMyPortfolios(userId: number) {
     return this.userRepository.findMyPortfolios(userId);
+  }
+
+  // === UserLink 서비스 ===
+
+  // 내 링크 목록 조회
+  async getMyLinks(userId: number) {
+    return this.userRepository.findMyLinks(userId);
+  }
+
+  // 링크 생성
+  async createLink(userId: number, data: CreateUserLinkRequest) {
+    return this.userRepository.createLink(userId, data);
+  }
+
+  // 링크 수정
+  async updateLink(userLinkId: number, userId: number, data: UpdateUserLinkRequest) {
+    // 권한 확인
+    const link = await this.userRepository.findLinkByIdAndUserId(userLinkId, userId);
+    if (!link) {
+      throw new AppError('링크를 찾을 수 없거나 수정 권한이 없습니다', 403);
+    }
+
+    return this.userRepository.updateLink(userLinkId, data);
+  }
+
+  // 링크 삭제
+  async deleteLink(userLinkId: number, userId: number) {
+    // 권한 확인
+    const link = await this.userRepository.findLinkByIdAndUserId(userLinkId, userId);
+    if (!link) {
+      throw new AppError('링크를 찾을 수 없거나 삭제 권한이 없습니다', 403);
+    }
+
+    return this.userRepository.deleteLink(userLinkId);
   }
 }

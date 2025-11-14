@@ -80,6 +80,10 @@ const controller = new PortfolioController();
  *           type: string
  *         userJob:
  *           type: string
+ *         userEmail:
+ *           type: string
+ *         userPhoneNumber:
+ *           type: string
  *         title:
  *           type: string
  *         thumbnail:
