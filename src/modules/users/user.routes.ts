@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { authenticate } from '../../middleware/authenticate';
 import { validate } from '../../middleware/validate';
 import { UserController } from './user.controller';
-import { UpdateMyInfoDto } from './user.dto';
+import { UpdateMyInfoDto, CreateUserLinkDto, UpdateUserLinkDto } from './user.dto';
 
 const router = Router();
 const controller = new UserController();
@@ -177,5 +177,123 @@ router.get('/me/projects', authenticate, controller.getMyProjects);
  *         description: 조회 성공
  */
 router.get('/me/portfolios', authenticate, controller.getMyPortfolios);
+
+/**
+ * @swagger
+ * /api/users/me/links:
+ *   get:
+ *     summary: 내 링크 목록 조회
+ *     tags: [User]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: 조회 성공
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       userLinkId:
+ *                         type: number
+ *                       userId:
+ *                         type: number
+ *                       linkType:
+ *                         type: string
+ *                         description: github, blog, notion, instagram, youtube, etc
+ *                       url:
+ *                         type: string
+ *                       createdAt:
+ *                         type: string
+ *                         format: date-time
+ *   post:
+ *     summary: 링크 생성
+ *     tags: [User]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - linkType
+ *               - url
+ *             properties:
+ *               linkType:
+ *                 type: string
+ *                 description: github, blog, notion, instagram, youtube, etc
+ *               url:
+ *                 type: string
+ *                 format: uri
+ *     responses:
+ *       201:
+ *         description: 생성 성공
+ *       401:
+ *         description: 인증 필요
+ */
+router.get('/me/links', authenticate, controller.getMyLinks);
+router.post('/me/links', authenticate, validate(CreateUserLinkDto), controller.createLink);
+
+/**
+ * @swagger
+ * /api/users/me/links/{id}:
+ *   patch:
+ *     summary: 링크 수정
+ *     tags: [User]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: number
+ *         description: 링크 ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               linkType:
+ *                 type: string
+ *               url:
+ *                 type: string
+ *                 format: uri
+ *     responses:
+ *       200:
+ *         description: 수정 성공
+ *       403:
+ *         description: 권한 없음
+ *   delete:
+ *     summary: 링크 삭제
+ *     tags: [User]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: number
+ *         description: 링크 ID
+ *     responses:
+ *       200:
+ *         description: 삭제 성공
+ *       403:
+ *         description: 권한 없음
+ */
+router.patch('/me/links/:id', authenticate, validate(UpdateUserLinkDto), controller.updateLink);
+router.delete('/me/links/:id', authenticate, controller.deleteLink);
 
 export default router;

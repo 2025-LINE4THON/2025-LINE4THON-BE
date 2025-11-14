@@ -19,7 +19,7 @@ model User {
   name         String?
   username     String
   password     String
-  phoneNumber  Int?
+  phoneNumber  String?
   email        String?
   introduction String?
   job          String?
@@ -32,12 +32,16 @@ model User {
   stacks       Stack[] 
   portfolioStacks    PortfolioStack[]
   portfolioCareers   PortfolioCareer[]
+  portfolioLicenses  PortfolioLicense[]
   projectTags        ProjectTag[]
   projectStacks      ProjectStack[]
   projectContents    ProjectContent[]
   projectImages      ProjectImage[]
-  links              Link[]  
+  links              Link[]
+  portfolioLikes     PortfolioLike[]
+  userLinks          UserLink[]
 }
+
 
 model License {
   licenseId     Int      @id @default(autoincrement())
@@ -47,6 +51,7 @@ model License {
   endDate       DateTime?
 
   user User @relation(fields: [userId], references: [userId])
+  portfolioLicenses PortfolioLicense[]
 }
 
 model Career {
@@ -91,17 +96,21 @@ model Portfolio {
   template     Template
   createdAt    DateTime @default(now())
   views      Int @default(0)
+  likesCount Int @default(0)
   updatedAt    DateTime @updatedAt
   isPublic  Visibiliity     
   greeting  String?
   introduction String?
   aboutMe      String?
+  coverImage   String?
 
 
   user     User     @relation(fields: [userId], references: [userId])
   projects  Project[] @relation("PortfolioProjects")
   portfolioStacks  PortfolioStack[]
   portfolioCareers PortfolioCareer[]
+  portfolioLicenses PortfolioLicense[]
+  likes    PortfolioLike[]
 }
 
 model PortfolioStack {
@@ -128,6 +137,29 @@ model PortfolioCareer {
   user      User      @relation(fields: [userId], references: [userId])
 
   @@id([careerId, portfolioId, userId])
+}
+
+model PortfolioLicense {
+  licenseId   Int
+  portfolioId Int
+  userId      Int
+
+  license   License   @relation(fields: [licenseId], references: [licenseId])
+  portfolio Portfolio @relation(fields: [portfolioId], references: [portfolioId])
+  user      User      @relation(fields: [userId], references: [userId])
+
+  @@id([licenseId, portfolioId, userId])
+}
+
+model PortfolioLike {
+  userId      Int
+  portfolioId Int
+  createdAt   DateTime @default(now())
+
+  user      User      @relation(fields: [userId], references: [userId])
+  portfolio Portfolio @relation(fields: [portfolioId], references: [portfolioId])
+
+  @@id([userId, portfolioId])
 }
 
 model Project {
@@ -203,4 +235,14 @@ model Link {
 
   project Project @relation(fields: [projectId], references: [projectId])
   user    User    @relation(fields: [userId], references: [userId])
+}
+
+model UserLink {
+  userLinkId Int      @id @default(autoincrement())
+  userId     Int
+  linkType   String   // github, blog, notion, instagram, youtube, etc
+  url        String
+  createdAt  DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [userId])
 }

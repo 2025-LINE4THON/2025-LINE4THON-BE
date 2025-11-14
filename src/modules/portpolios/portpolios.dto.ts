@@ -30,10 +30,10 @@ export const CreatePortfolioDto = z.object({
   careers: z.array(CareerInputSchema).optional(), // API 명세: careers (id, description)
   projectIds: z.array(z.number()).optional(), // API 명세: projectIds
   title: z.string().min(1, '제목은 필수입니다'),
-  greeting: z.string().optional(), // API 명세: greeting
   introduction: z.string().optional(), // API 명세: Introduction (대문자 I)
   aboutMe: z.array(AboutMeSchema).optional(), // API 명세: aboutMe
   thumbnail: z.string().optional(), // API 명세: thumbnail
+  coverImage: z.string().optional(), // 추가: coverImage
   isPublic: VisibilityEnum, // API 명세: isPublic (public | private | link)
 });
 
@@ -44,10 +44,10 @@ export const UpdatePortfolioDto = z.object({
   careers: z.array(CareerInputSchema).optional(),
   projectIds: z.array(z.number()).optional(),
   title: z.string().min(1, '제목은 필수입니다').optional(),
-  greeting: z.string().optional(),
   introduction: z.string().optional(),
   aboutMe: z.array(AboutMeSchema).optional(),
   thumbnail: z.string().optional(),
+  coverImage: z.string().optional(),
   isPublic: VisibilityEnum.optional(),
 });
 
@@ -67,16 +67,22 @@ export type AboutMeInput = z.infer<typeof AboutMeSchema>;
 export interface PortfolioResponseDto {
   portfolioId: number;
   userId: number;
+  userName?: string;
+  userJob?: string;
+  userEmail?: string;
+  userPhoneNumber?: string;
   title: string;
   thumbnail?: string;
   template: 'IMAGE' | 'STANDARD';
   views: number;
+  likesCount: number;
   isPublic: 'PUBLIC' | 'PRIVATE' | 'LINK';
-  greeting?: string;
   introduction?: string;
   aboutMe?: AboutMeInput[];
+  coverImage?: string;
   createdAt: Date;
   updatedAt: Date;
+  isLiked?: boolean; // 현재 사용자가 좋아요 했는지 여부 (선택적)
 }
 
 // Stack 응답 DTO
@@ -96,7 +102,15 @@ export interface CareerDto {
   description?: string; // PortfolioCareer에서의 description
 }
 
-// Project 간단 응답 DTO
+// License 응답 DTO
+export interface LicenseDto {
+  licenseId: number;
+  name: string;
+  gotDate: Date;
+  endDate?: Date;
+}
+
+// Project 상세 응답 DTO
 export interface ProjectDto {
   projectId: number;
   title: string;
@@ -104,31 +118,55 @@ export interface ProjectDto {
   role?: string;
   startDate: Date;
   endDate?: Date;
+  description?: string; // 프로젝트 상세 설명 (ProjectContent의 content)
+  stacks: ProjectStackDto[]; // 사용된 기술 스택
+  githubUrl?: string; // 깃허브 링크 (Link 중 github인 것)
+}
+
+// ProjectStack 응답 DTO
+export interface ProjectStackDto {
+  stackId: number;
+  stackName: string;
 }
 
 // Portfolio 상세 응답 DTO
 export interface PortfolioDetailResponseDto {
   portfolioId: number;
   userId: number;
+  userName?: string;
+  userJob?: string;
+  userEmail?: string;
+  userPhoneNumber?: string;
   title: string;
   thumbnail?: string;
+  coverImage?: string;
   template: 'IMAGE' | 'STANDARD';
   views: number;
+  likesCount: number;
   isPublic: 'PUBLIC' | 'PRIVATE' | 'LINK';
-  greeting?: string;
   introduction?: string;
   aboutMe?: AboutMeInput[];
   createdAt: Date;
   updatedAt: Date;
+  isLiked?: boolean;
   stacks: StackDto[];
   careers: CareerDto[];
+  licenses: LicenseDto[];
   projects: ProjectDto[];
 }
 
 // Portfolio 검색 파라미터
 export interface PortfolioSearchParam {
   keyword?: string;
-  sort?: 'recent' | 'views';
+  sort?: 'recent' | 'views' | 'likes';
   template?: 'IMAGE' | 'STANDARD';
   isPublic?: 'PUBLIC' | 'PRIVATE' | 'LINK';
+}
+
+// Portfolio 필수 요소 확인 응답 DTO
+export interface PortfolioRequirementsDto {
+  career: boolean;
+  stack: boolean;
+  project: boolean;
+  job: boolean;
 }

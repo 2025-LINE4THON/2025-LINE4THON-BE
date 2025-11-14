@@ -79,5 +79,32 @@ export class PortfolioService extends CommonService<PortfolioResponseDto> {
       params.isPublic
     );
   }
+
+  // 포트폴리오 필수 요소 확인
+  async checkPortfolioRequirements(userId: number) {
+    return this.portfolioRepository.checkRequirements(userId);
+  }
+
+  // 포트폴리오 좋아요
+  async likePortfolio(userId: number, portfolioId: number) {
+    // 이미 좋아요 했는지 확인
+    const isLiked = await this.portfolioRepository.isLiked(userId, portfolioId);
+    if (isLiked) {
+      throw new Error('이미 좋아요한 포트폴리오입니다');
+    }
+
+    return this.portfolioRepository.likePortfolio(userId, portfolioId);
+  }
+
+  // 포트폴리오 좋아요 취소
+  async unlikePortfolio(userId: number, portfolioId: number) {
+    // 좋아요 했는지 확인
+    const isLiked = await this.portfolioRepository.isLiked(userId, portfolioId);
+    if (!isLiked) {
+      throw new Error('좋아요하지 않은 포트폴리오입니다');
+    }
+
+    return this.portfolioRepository.unlikePortfolio(userId, portfolioId);
+  }
 }
 

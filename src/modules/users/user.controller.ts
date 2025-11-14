@@ -100,4 +100,60 @@ export class UserController {
     const portfolios = await this.userService.getMyPortfolios(userId);
     res.json(success(portfolios, '내 포트폴리오 목록 조회 성공'));
   });
+
+  // === UserLink 컨트롤러 ===
+
+  // 내 링크 목록 조회
+  getMyLinks = asyncHandler(async (req: Request, res: Response) => {
+    const userId = req.user?.userId;
+
+    if (!userId) {
+      res.status(401).json({ message: '인증이 필요합니다.' });
+      return;
+    }
+
+    const links = await this.userService.getMyLinks(userId);
+    res.json(success(links, '내 링크 목록 조회 성공'));
+  });
+
+  // 링크 생성
+  createLink = asyncHandler(async (req: Request, res: Response) => {
+    const userId = req.user?.userId;
+
+    if (!userId) {
+      res.status(401).json({ message: '인증이 필요합니다.' });
+      return;
+    }
+
+    const link = await this.userService.createLink(userId, req.body);
+    res.status(201).json(success(link, '링크 생성 성공'));
+  });
+
+  // 링크 수정
+  updateLink = asyncHandler(async (req: Request, res: Response) => {
+    const userId = req.user?.userId;
+
+    if (!userId) {
+      res.status(401).json({ message: '인증이 필요합니다.' });
+      return;
+    }
+
+    const userLinkId = parseInt(req.params.id);
+    const link = await this.userService.updateLink(userLinkId, userId, req.body);
+    res.json(success(link, '링크 수정 성공'));
+  });
+
+  // 링크 삭제
+  deleteLink = asyncHandler(async (req: Request, res: Response) => {
+    const userId = req.user?.userId;
+
+    if (!userId) {
+      res.status(401).json({ message: '인증이 필요합니다.' });
+      return;
+    }
+
+    const userLinkId = parseInt(req.params.id);
+    await this.userService.deleteLink(userLinkId, userId);
+    res.json(success(null, '링크 삭제 성공'));
+  });
 }

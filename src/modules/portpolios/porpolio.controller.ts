@@ -131,4 +131,57 @@ export class PortfolioController extends CommonController<PortfolioResponseDto> 
       res.status(500).json(fail(error.message));
     }
   };
+
+  // 포트폴리오 필수 요소 확인
+  checkPortfolioRequirements = async (req: Request, res: Response) => {
+    try {
+      const userId = req.user?.userId;
+      if (!userId) {
+        return res.status(401).json(fail('인증이 필요합니다'));
+      }
+
+      const requirements = await this.portfolioService.checkPortfolioRequirements(userId);
+      res.json(success(requirements, '필수 요소 확인 성공'));
+    } catch (error: any) {
+      res.status(500).json(fail(error.message));
+    }
+  };
+
+  // 포트폴리오 좋아요
+  likePortfolio = async (req: Request, res: Response) => {
+    try {
+      const userId = req.user?.userId;
+      if (!userId) {
+        return res.status(401).json(fail('인증이 필요합니다'));
+      }
+
+      const portfolioId = parseInt(req.params.id);
+      await this.portfolioService.likePortfolio(userId, portfolioId);
+      res.json(success(null, '좋아요가 추가되었습니다'));
+    } catch (error: any) {
+      if (error.message.includes('이미 좋아요')) {
+        return res.status(400).json(fail(error.message));
+      }
+      res.status(500).json(fail(error.message));
+    }
+  };
+
+  // 포트폴리오 좋아요 취소
+  unlikePortfolio = async (req: Request, res: Response) => {
+    try {
+      const userId = req.user?.userId;
+      if (!userId) {
+        return res.status(401).json(fail('인증이 필요합니다'));
+      }
+
+      const portfolioId = parseInt(req.params.id);
+      await this.portfolioService.unlikePortfolio(userId, portfolioId);
+      res.json(success(null, '좋아요가 취소되었습니다'));
+    } catch (error: any) {
+      if (error.message.includes('좋아요하지 않은')) {
+        return res.status(400).json(fail(error.message));
+      }
+      res.status(500).json(fail(error.message));
+    }
+  };
 }
