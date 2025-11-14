@@ -77,7 +77,8 @@ licenseRouter.get('/licenses', authenticate, controller.list);
  * @swagger
  * /api/licenses:
  *   post:
- *     summary: 자격증 등록
+ *     summary: 자격증 일괄 등록/수정 (배열)
+ *     description: 기존 자격증을 모두 삭제하고 새로운 자격증들로 교체합니다. 빈 배열을 보내면 모든 자격증이 삭제됩니다.
  *     tags: [License]
  *     security:
  *       - bearerAuth: []
@@ -86,7 +87,22 @@ licenseRouter.get('/licenses', authenticate, controller.list);
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/LicenseRequest'
+ *             type: object
+ *             required:
+ *               - licenses
+ *             properties:
+ *               licenses:
+ *                 type: array
+ *                 items:
+ *                   $ref: '#/components/schemas/LicenseRequest'
+ *           example:
+ *             licenses:
+ *               - name: "정보처리기사"
+ *                 gotDate: "2024-06-15"
+ *                 endDate: null
+ *               - name: "AWS Solutions Architect"
+ *                 gotDate: "2024-03-20"
+ *                 endDate: "2027-03-20"
  *     responses:
  *       201:
  *         description: 등록 성공

@@ -17,13 +17,8 @@ export class LicenseService {
   }
 
   async create(userId: number, body: unknown) {
-    const data = createLicenseSchema.parse(body);
-    return this.repo.create({
-      user: { connect: { userId } },
-      name: data.name,
-      gotDate: data.gotDate,
-      endDate: data.endDate ?? null,
-    });
+    const { licenses } = createLicenseSchema.parse(body);
+    return this.repo.bulkUpdate(userId, licenses);
   }
 
   async update(userId: number, licenseId: number, body: unknown) {

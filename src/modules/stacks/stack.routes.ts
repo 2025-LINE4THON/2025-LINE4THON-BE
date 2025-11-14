@@ -67,7 +67,8 @@ stackRouter.get('/stacks', authenticate, controller.list);
  * @swagger
  * /api/stacks:
  *   post:
- *     summary: 스택 등록
+ *     summary: 스택 일괄 등록/수정 (배열)
+ *     description: 기존 스택을 모두 삭제하고 새로운 스택들로 교체합니다. 빈 배열을 보내면 모든 스택이 삭제됩니다.
  *     tags: [Stack]
  *     security:
  *       - bearerAuth: []
@@ -76,7 +77,22 @@ stackRouter.get('/stacks', authenticate, controller.list);
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/StackRequest'
+ *             type: object
+ *             required:
+ *               - stacks
+ *             properties:
+ *               stacks:
+ *                 type: array
+ *                 items:
+ *                   $ref: '#/components/schemas/StackRequest'
+ *           example:
+ *             stacks:
+ *               - name: "React"
+ *                 level: "Advanced"
+ *               - name: "TypeScript"
+ *                 level: "Intermediate"
+ *               - name: "Node.js"
+ *                 level: null
  *     responses:
  *       201:
  *         description: 등록 성공

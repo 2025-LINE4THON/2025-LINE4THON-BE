@@ -51,4 +51,24 @@ export class StackRepository {
     const found = await this.model.findFirst({ where: { userId, name } });
     return !!found;
   }
+
+  // 기존 스택 모두 삭제 후 새로 생성 (배열 일괄 처리)
+  async bulkUpdate(userId: number, stacks: Array<{ name: string; level?: string | null }>) {
+    // 1. 기존 스택 모두 삭제
+    await this.model.deleteMany({ where: { userId } });
+
+    // 2. 새로운 스택 일괄 생성
+    if (stacks.length > 0) {
+      await this.model.createMany({
+        data: stacks.map(s => ({
+          userId,
+          name: s.name,
+          level: s.level ?? null,
+        })),
+      });
+    }
+
+    // 3. 생성된 스택 목록 반환
+    return this.findAllByUser(userId);
+  }
 }

@@ -17,13 +17,8 @@ export class CareerService {
   }
 
   async create(userId: number, body: unknown) {
-    const data = createCareerSchema.parse(body);
-    return this.repo.create({
-      user: { connect: { userId } },
-      content: data.content,
-      startDate: data.startDate,
-      endDate: data.endDate ?? null,
-    });
+    const { careers } = createCareerSchema.parse(body);
+    return this.repo.bulkUpdate(userId, careers);
   }
 
   async update(userId: number, careerId: number, body: unknown) {
