@@ -54,12 +54,17 @@ export class PortfolioService extends CommonService<PortfolioResponseDto> {
   }
 
   // 포트폴리오 상세 조회 (조회수 증가)
-  async getPortfolioDetail(portfolioId: number): Promise<PortfolioDetailResponseDto | null> {
+  async getPortfolioDetail(portfolioId: number, userId?: number): Promise<PortfolioDetailResponseDto | null> {
     const portfolio = await this.portfolioRepository.findByIdWithRelations(portfolioId);
     
     if (portfolio) {
       // 조회수 증가 (비동기로 실행, 응답 지연 방지)
       this.portfolioRepository.incrementViews(portfolioId).catch(console.error);
+      
+      // 좋아요 여부 확인 (로그인한 경우)
+      if (userId) {
+        portfolio.isLiked = await this.portfolioRepository.isLiked(userId, portfolioId);
+      }
     }
 
     return portfolio;
@@ -71,15 +76,24 @@ export class PortfolioService extends CommonService<PortfolioResponseDto> {
   }
 
   // 포트폴리오 검색
-  async searchPortfolios(params: PortfolioSearchParam): Promise<PortfolioResponseDto[]> {
-    // likes는 recent로 변환
-    const sort = params.sort === 'likes' ? 'views' : params.sort;
-    return this.portfolioRepository.searchPortfolios(
+  async searchPortfolios(params: PortfolioSearchParam, userId?: number): Promise<PortfolioResponseDto[]> {
+    const portfolios = await this.portfolioRepository.searchPortfolios(
       params.keyword,
-      sort,
+      params.sort,
       params.template,
       params.isPublic
     );
+    
+    // 좋아요 여부 확인 (로그인한 경우)
+    if (userId) {
+      await Promise.all(
+        portfolios.map(async (portfolio) => {
+          portfolio.isLiked = await this.portfolioRepository.isLiked(userId, portfolio.portfolioId);
+        })
+      );
+    }
+    
+    return portfolios;
   }
 
   // 포트폴리오 필수 요소 확인

@@ -125,7 +125,8 @@ export class PortfolioController extends CommonController<PortfolioResponseDto> 
   getPortfolioDetail = async (req: Request, res: Response) => {
     try {
       const portfolioId = parseInt(req.params.id);
-      const portfolio = await this.portfolioService.getPortfolioDetail(portfolioId);
+      const userId = req.user?.userId; // 로그인한 경우에만 존재
+      const portfolio = await this.portfolioService.getPortfolioDetail(portfolioId, userId);
       
       if (!portfolio) {
         return res.status(404).json(fail('포트폴리오를 찾을 수 없습니다'));
@@ -152,12 +153,13 @@ export class PortfolioController extends CommonController<PortfolioResponseDto> 
     try {
       const params: PortfolioSearchParam = {
         keyword: req.query.keyword as string,
-        sort: (req.query.sort as 'recent' | 'views') || 'recent',
+        sort: (req.query.sort as 'recent' | 'views' | 'likes') || 'recent',
         template: req.query.template as 'IMAGE' | 'STANDARD' | undefined,
         isPublic: req.query.isPublic as 'PUBLIC' | 'PRIVATE' | 'LINK' | undefined,
       };
 
-      const portfolios = await this.portfolioService.searchPortfolios(params);
+      const userId = req.user?.userId; // 로그인한 경우에만 존재
+      const portfolios = await this.portfolioService.searchPortfolios(params, userId);
       res.json(success(portfolios, '포트폴리오 검색 성공'));
     } catch (error: any) {
       res.status(500).json(fail(error.message));
